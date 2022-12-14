@@ -17,7 +17,7 @@
 #define AUTO_CALIB_INTERNAL_H_
 
 #include "ia_types.h"
-#include "kalmanfilter.h"
+// #include "kalmanfilter.h"
 #include "auto_calib_types.h"
 #include "ia_log.h"
 #include "ac_mem_allocate.h"
