@@ -16,6 +16,7 @@
 #include "math.h"
 #include "ia_abstraction.h"
 #include "ac_auxiliary.h"
+#include "macro.h"
 
 #ifdef ENABLE_NEON
 #if defined __aarch64__
@@ -3423,3 +3424,4 @@ ia_err export_matrix_data(char *bin_file, const ac_matrix_f32_t *mat)
     return ia_err_none;
 }
 #endif
+

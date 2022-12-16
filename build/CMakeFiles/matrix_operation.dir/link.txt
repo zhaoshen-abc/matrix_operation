@@ -1,1 +1,0 @@
-/usr/bin/cc -fPIC -shared -Wl,-soname,libmatrix_operation.so -o libmatrix_operation.so CMakeFiles/matrix_operation.dir/matrix_operation/ac_auxiliary.c.o 

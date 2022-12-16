@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "ia_types.h": "c"
+        "ia_types.h": "c",
+        "ia_abstraction.h": "c",
+        "ac_auxiliary.h": "c",
+        "math.h": "c"
     }
 }

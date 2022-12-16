@@ -315,7 +315,7 @@ typedef struct _ac_t
     ac_calibration depth_out_720;                 /*!< tuned calibration for depth output adapted to resolution 1280x720 */
     ac_indicator indicator;                       /*!< indicator for auto calib result*/
     ac_depth_t calib_depth;                       /*!< reocord necessary data for calib by depth */
-    kalman_pars_t kalman_state;                   /*!< store kalman filter state */
+    // kalman_pars_t kalman_state;                   /*!< store kalman filter state */
 #ifdef INPUTS_IN_FILE
     ac_debug_t m_debug;
 #endif

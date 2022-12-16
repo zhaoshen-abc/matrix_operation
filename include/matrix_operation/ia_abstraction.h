@@ -349,7 +349,7 @@ inline int32_t IA_FLOAT_TO_S18_8(const float64_t val)
 #if ((!defined _WIN32) && (!defined WIN32) && (!defined _WINDOWS) && (!defined WINDOWS) && (!defined __STDC_LIB_EXT1__) && (!defined memcpy_s))
 
 #include <errno.h>
-// #include "ia_log.h"
+#include "ia_log.h"
 
 #define SAFE_MEM_SUCCESS 0
 
