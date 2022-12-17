@@ -3,6 +3,10 @@
         "ia_types.h": "c",
         "ia_abstraction.h": "c",
         "ac_auxiliary.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "*.tcc": "c",
+        "vector": "c",
+        "stdlib.h": "c",
+        "random": "c"
     }
 }

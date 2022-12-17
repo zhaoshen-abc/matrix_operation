@@ -44,103 +44,59 @@ int RtDRdecomp_D(double *A, int N) {
     return 1;
 }
 
-int ldlt_solve(float *_A, float *_x, int _N, float *_bufferNxN) {
+int ldlt_solve(float *_A, float *_x, int _N) {
     if (!RtDRdecomp(_A, _N)) {
         return 0;
     }
 
     float *p = _A;
-    if(!_bufferNxN) {
-//            float R[_N][_N];
-        float R[_N][_N];
-        for (int i = 0; i < _N; i++) {
-            for (int j = i; j < _N; j++) {
-                R[i][j] = *p++;
-            }
-        }
-
-        for (int k = 0; k < _N; k++) {
-            for (int i = 0; i < k; i++) {
-                _x[k] -= _x[i] * R[i][k];
-            }
-        }
-
-        for (int k = _N - 1; k >= 0; k--) {
-            _x[k] /= R[k][k];
-            for (int i = k + 1; i < _N; i++)
-                _x[k] -= _x[i] * R[k][i];
+    float R[_N][_N];
+    for (int i = 0; i < _N; i++) {
+        for (int j = i; j < _N; j++) {
+            R[i][j] = *p++;
         }
     }
-    else {
-        for (int i = 0; i < _N; i++) {
-            for (int j = i; j < _N; j++) {
-                _bufferNxN[i * _N + j] = *p++;
-            }
-        }
 
-        for (int k = 0; k < _N; k++) {
-            for (int i = 0; i < k; i++) {
-                _x[k] -= _x[i] * _bufferNxN[i * _N + k];
-            }
+    for (int k = 0; k < _N; k++) {
+        for (int i = 0; i < k; i++) {
+            _x[k] -= _x[i] * R[i][k];
         }
+    }
 
-        for (int k = _N - 1; k >= 0; k--) {
-            _x[k] /= _bufferNxN[k * _N + k];
-            for (int i = k + 1; i < _N; i++)
-                _x[k] -= _x[i] * _bufferNxN[k * _N + i];
-        }
+    for (int k = _N - 1; k >= 0; k--) {
+        _x[k] /= R[k][k];
+        for (int i = k + 1; i < _N; i++)
+            _x[k] -= _x[i] * R[k][i];
     }
 
     return 1;
 }
 
-int ldlt_solve(double *_A, double *_x, int _N, double *_bufferNxN) {
+int ldlt_solve_D(double *_A, double *_x, int _N) {
     if (!RtDRdecomp(_A, _N)) {
         return 0;
     }
 
     double *p = _A;
-    if(!_bufferNxN) {
-//            double R[_N][_N];
-        double R[_N][_N];
-        for (int i = 0; i < _N; i++) {
-            for (int j = i; j < _N; j++) {
-                R[i][j] = *p++;
-            }
-        }
-
-        for (int k = 0; k < _N; k++) {
-            for (int i = 0; i < k; i++) {
-                _x[k] -= _x[i] * R[i][k];
-            }
-        }
-
-        for (int k = _N - 1; k >= 0; k--) {
-            _x[k] /= R[k][k];
-            for (int i = k + 1; i < _N; i++)
-                _x[k] -= _x[i] * R[k][i];
-        }
-    }
-    else {
-        for (int i = 0; i < _N; i++) {
-            for (int j = i; j < _N; j++) {
-                _bufferNxN[i * _N + j] = *p++;
-            }
-        }
-
-        for (int k = 0; k < _N; k++) {
-            for (int i = 0; i < k; i++) {
-                _x[k] -= _x[i] * _bufferNxN[i * _N + k];
-            }
-        }
-
-        for (int k = _N - 1; k >= 0; k--) {
-            _x[k] /= _bufferNxN[k * _N + k];
-            for (int i = k + 1; i < _N; i++)
-                _x[k] -= _x[i] * _bufferNxN[k * _N + i];
+    double R[_N][_N];
+    for (int i = 0; i < _N; i++) {
+        for (int j = i; j < _N; j++) {
+            R[i][j] = *p++;
         }
     }
 
+    for (int k = 0; k < _N; k++) {
+        for (int i = 0; i < k; i++) {
+            _x[k] -= _x[i] * R[i][k];
+        }
+    }
+
+    for (int k = _N - 1; k >= 0; k--) {
+        _x[k] /= R[k][k];
+        for (int i = k + 1; i < _N; i++)
+            _x[k] -= _x[i] * R[k][i];
+    }
+    
     return 1;
 }
 
