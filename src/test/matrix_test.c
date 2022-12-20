@@ -1,8 +1,9 @@
 #include <math.h>
 #include <stdlib.h>
-// #include "ia_abstraction.h"
-// #include "ac_auxiliary.h"
+
 #include "macro.h"
+#include "ia_abstraction.h"
+#include "ac_auxiliary.h"
 #include "solver.h"
 // #define LOG_AC
 // #define _DEBUG
@@ -26,16 +27,16 @@ void print_vec_N_D(const double* vec, int N) {
     puts("");
 }
 
-double* symmat2vector_N_D(const double* mat, int N) {
-    double* vec = malloc(N*(N + 1) / 2 * sizeof(double));
-    double *p = vec;
-    for (int i = 0 ; i < N; i ++ ) {
-        for (int j = i; j < N; j ++ ) {
-            *p++ = mat[i * N + j];
-        }
-    }
-    return vec;
-}
+// double* symmat2vector_N_D(const double* mat, int N) {
+//     double* vec = malloc(N*(N + 1) / 2 * sizeof(double));
+//     double *p = vec;
+//     for (int i = 0 ; i < N; i ++ ) {
+//         for (int j = i; j < N; j ++ ) {
+//             *p++ = mat[i * N + j];
+//         }
+//     }
+//     return vec;
+// }
 
 double** vector2symmat_N_D(const double* vec, int N) {
     double (*mat)[N] = (double(*)[N])malloc(N * N * sizeof(double));
@@ -72,17 +73,27 @@ double** matrix_multiply_D_N(const double** mat1, const double** mat2, int N) {
 
 int main() {
 	int N = 4;
+    AC_LOG("%s", "hello world");
 
     double mat[N][N];
+    ac_matrix_double_t matrix = {
+        data: mat, 
+        m: N, 
+        n: N, 
+        s: 1
+    };
     for (int i = 0 ; i < N; i ++ ) {
         for (int j = 0; j < N; j ++ ) {
             mat[i][j] = rand() % 50;
         }
     }
     puts("origin matrix :");
-    print_mat_N_D(mat, N);
+    ac_mat_print_d(&matrix, N, N);
 
-	double* vec = symmat2vector_N_D(mat, N);
+
+    ac_mat_print_d(&matrix, N, N);
+
+	double* vec = symmat2vector_N_D(&matrix, N);
     puts("before decompose :");
     double* p = vec;
     for(int i = 0; i < N*(N + 1) / 2; i++)
@@ -93,12 +104,6 @@ int main() {
 		printf("failed!");
 		return getchar();
 	}
-	// double *p = A;
-	// memset(A1, 0, N * N << DBLShift);
-	// for(int i = 0; i < N; i++)
-	// 	for(int j = i; j < N; j++)
-	// 		A1[i * N + j] = *p++;
-	// yuSave("X", A1, N, N, 1, DOUBLE64);
     puts("after decompose :");
 
     double A[N][N];

@@ -7,6 +7,11 @@
         "*.tcc": "c",
         "vector": "c",
         "stdlib.h": "c",
-        "random": "c"
+        "random": "c",
+        "macro.h": "c",
+        "solver.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
     }
 }
