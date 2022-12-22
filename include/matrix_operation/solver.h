@@ -59,6 +59,8 @@ typedef struct
     // uint32_t s;         /*!< number of stride*/
 } diagonal_double_t;
 
+double* symmetric_index(symmetric_double_t* A, int x, int y);
+
 void symmetric_mat_print_d(symmetric_double_t* mat);
 
 void upper_triangular_print_d(upper_triangular_double_t* mat);
