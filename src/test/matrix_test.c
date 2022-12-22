@@ -72,62 +72,59 @@ double** matrix_multiply_D_N(const double** mat1, const double** mat2, int N) {
 }
 
 int main() {
-	int N = 4;
-    AC_LOG("%s", "hello world");
+	uint32_t N = 4;
+    uint32_t len = N*(N + 1) / 2;
 
-    double mat[N][N];
-    ac_matrix_double_t matrix = {
-        data: mat, 
-        m: N, 
-        n: N, 
-        s: 1
+    double A_data[N * N];
+    symmetric_double_t A = {
+        data: A_data, 
+        n: N
     };
+    
     for (int i = 0 ; i < N; i ++ ) {
-        for (int j = 0; j < N; j ++ ) {
-            mat[i][j] = rand() % 50;
-        }
-    }
-    puts("origin matrix :");
-    ac_mat_print_d(&matrix, N, N);
-
-
-    ac_mat_print_d(&matrix, N, N);
-
-	double* vec = symmat2vector_N_D(&matrix, N);
-    puts("before decompose :");
-    double* p = vec;
-    for(int i = 0; i < N*(N + 1) / 2; i++)
-        printf("%f ", *p++);
-    puts("");
-
-    if(!RtDRdecomp(vec, N)) {
-		printf("failed!");
-		return getchar();
-	}
-    puts("after decompose :");
-
-    double A[N][N];
-    double D[N][N];
-
-    double** mat2 = vector2symmat_N_D(vec, N);
-    print_mat_N_D(mat2, N);
-    for (int i = 0; i < N; i ++ ) {
         for (int j = i; j < N; j ++ ) {
-            if (i == j) {
-                D[i][j] = mat[i][j];
-                A[i][j] = 1;
-            }
-            else {
-                A[i][j] = mat[i][j];
-                A[j][i] = mat[i][j];
-                D[i][j] = D[j][i] = 0;
-            }
+            *symmetric_index(&A, i, j) = rand() % 50;
         }
     }
-    puts("D :");
-    print_mat_N_D(D, N);
-    puts("A :");
-    print_mat_N_D(A, N);
+
+    // *symmetric_index(&A, 0, 0) = 33;
+    // *symmetric_index(&A, 0, 1) = 0;
+    // *symmetric_index(&A, 0, 2) = 12.718404;
+    // *symmetric_index(&A, 0, 3) = -76.998098;
+    // *symmetric_index(&A, 1, 1) = 3.727273;
+    // *symmetric_index(&A, 1, 2) = 5.299335;
+    // *symmetric_index(&A, 1, 3) = 0.000000;
+    // *symmetric_index(&A, 2, 2) = 11.658537;
+    // *symmetric_index(&A, 2, 3) = -140.015512;
+    // *symmetric_index(&A, 3, 3) = -94.108787;
+
+    puts("origin matrix :");
+    symmetric_print_d(&A);
+
+    double R_data[len];
+    double D_data[N];
+    unit_diag_triangular_double_t R = { (double*)NULL, N };
+    diagonal_double_t D = { (double*)NULL, N };
+    R.data = R_data;
+    D.data = D_data;
+    Symmetric_RtDRdecomp(&A, &R, &D);
+
+    double A_mat_data[N*N];
+    double R_mat_data[N*N];
+    double D_mat_data[N*N];
+    ac_matrix_double_t A_mat = {A_mat_data, N, N};
+    ac_matrix_double_t R_mat = {R_mat_data, N, N};
+    ac_matrix_double_t D_mat = {D_mat_data, N, N};
+    symmetric_2_matrix(&A, &A_mat);
+    unit_diag_triangular_2_matrix(&R, &R_mat);
+    diagonal_2_matrix(&D, &D_mat);
+
+    // double res_mat_data[N*N];
+    // ac_matrix_double_t res_mat = {res_mat_data, N, N};
+    // matrix_matrix_operation_d(R_mat, D_mat, '*', res_mat);
+    // puts("product : ");
+    // ac_mat_print_d(&res_mat, N, N);
+
 
     // puts("matrix A^T*D*A :");
     // double** matrix1 = matrix_multiply_D_N(A, D, N);
