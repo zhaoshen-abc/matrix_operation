@@ -1,57 +1,265 @@
-#include "megCV/math/geometry.h"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/calib3d.hpp"
+#include "geometry.h"
+#include "ia_abstraction.h"
+  // const Posed &Identity34d() {
+  //   Identity34(Posed)
+  // }
 
-namespace megCV {
-#define Identity34(type) \
-        static type pose = type::Zero(); \
-        if(pose(0, 0)) { \
-            return pose; \
-        } \
-        pose.block<3, 3>(0, 0).setIdentity();\
-        return pose;
-
-  const Posed &Identity34d() {
-    Identity34(Posed)
+  ia_err copy_Vec3d(const Vec3d v_in, Vec3d v_out) {
+    v_out[0] = v_in[0];
+    v_out[1] = v_in[1];
+    v_out[2] = v_in[2];
+    return ia_err_none;
   }
 
-  Mat3d skewd(const Vec3d &v) {
-    assert(!v.hasNaN());
-    Mat3d mat = Mat3d::Zero();
-    mat(0, 1) = -v(2);
-    mat(0, 2) = v(1);
-    mat(1, 0) = v(2);
-    mat(1, 2) = -v(0);
-    mat(2, 0) = -v(1);
-    mat(2, 1) = v(0);
-    return mat;
+  ia_err copy_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out) {
+    mat_out[0][0] = mat_in[0][0];
+    mat_out[0][1] = mat_in[0][1];
+    mat_out[0][2] = mat_in[0][2];
+    mat_out[1][0] = mat_in[1][0];
+    mat_out[1][1] = mat_in[1][1];
+    mat_out[1][2] = mat_in[1][2];
+    mat_out[2][0] = mat_in[2][0];
+    mat_out[2][1] = mat_in[2][1];
+    mat_out[2][2] = mat_in[2][2];
+    return ia_err_none;
   }
 
-  Mat3d skewd(const Vec3d &&v) {
-    assert(!v.hasNaN());
-    Mat3d mat = Mat3d::Zero();
-    mat(0, 1) = -v(2);
-    mat(0, 2) = v(1);
-    mat(1, 0) = v(2);
-    mat(1, 2) = -v(0);
-    mat(2, 0) = -v(1);
-    mat(2, 1) = v(0);
-    return mat;
+  ia_err transpose_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out) {
+    for (uint32_t i = 0; i < 3; i ++ ) {
+      for (uint32_t j = 0; j < 3; j ++ ) {
+        mat_out[i][j] = mat_in[j][i];
+      }
+    }
   }
 
-  Vec3d Log_SO3d(const Mat3d &&R) {
-    return Log_SO3d(R);
+  ia_err transpose_Mat33d_inplace(MAT_D_3_3 mat) {
+    for (uint32_t i = 0; i < 3; i ++ ) {
+      for (uint32_t j = i+1; j < 3; j ++ ) {
+        double tmp = mat[i][j];
+        mat[i][j] = mat[j][i];
+        mat[j][i] = tmp;
+      }
+    }
   }
 
-  Vec3d Log_SO3d(const Mat3d &R) {
-    Eigen::Quaternion<float_> quaternion(R);
-    quaternion.normalize();
+  ia_err set_Identity_Posed(Posed pose) {
+    memset(pose, 0, 12*sizeof(double));
+    pose[0][0] = 1.0;
+    pose[1][1] = 1.0;
+    pose[2][2] = 1.0;
+    return ia_err_none;
+  }
 
-    float_ n = quaternion.vec().norm();
-    float_ w = quaternion.w();
-    float_ squared_w = w * w;
+  ia_err set_Translate_Posed(Posed pose, const Vec3d trans) {
+    for (uint32_t i = 0; i < 3; i ++ ) {
+        pose[i][3] = trans[i];
+    }
+    return ia_err_none;
+  }
 
-    float_ two_atan_nbyw_by_n;
+  ia_err set_Rotation_Posed(Posed pose, const MAT_D_3_3 rotation) {
+    for (uint32_t i = 0; i < 3; i ++ ) {
+      for (uint32_t j = 0; j < 3; j ++ ) {
+        pose[i][j] = rotation[i][j];
+      }
+    }
+    return ia_err_none;
+  }
+
+  ia_err Pose_Translate_part(const Posed pose, Vec3d trans) {
+    trans[0] = pose[0][3];
+    trans[1] = pose[1][3];
+    trans[2] = pose[2][3];
+  }
+
+  ia_err Pose_Rotation_part(const Posed pose, MAT_D_3_3 rotation) {
+    for (uint32_t i = 0U; i < 3; i++) {
+      for (uint32_t j = 0U; j < 3; i++) {
+        rotation[i][j] = pose[i][j];
+      }
+    }
+  }
+
+  ia_err set_Identity_Mat33d(MAT_D_3_3 mat) {
+    memset(mat, 0, 9*sizeof(double));
+    mat[0][0] = 1;
+    mat[1][1] = 1;
+    mat[2][2] = 1;
+  }
+
+  ia_err Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const Vec3d v, Vec3d res) {
+    for (uint32_t i = 0U; i < 3; i++) {
+      for (uint32_t j = 0U; j < 3; i++) {
+        res[i] += mat[i][j] * v[i];
+      }
+    }
+    return ia_err_none;
+  }
+
+  ia_err Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, Vec3d v) {
+    Vec3d tmp;
+    for (uint32_t i = 0U; i < 3; i++) {
+      for (uint32_t j = 0U; j < 3; i++) {
+        tmp[i] += mat[i][j] * v[i];
+      }
+    }
+    copy_Vec3d(tmp, v);
+    return ia_err_none;
+  }
+
+  ia_err MAT33D_times_inplace(MAT_D_3_3 mat, double num) {
+    uint32_t N = 3, M = 3;
+    for (uint32_t i = 0U; i < N; i++) {
+      for (uint32_t j = 0U; j < M; j++) {
+          mat[i][j] = mat[i][j] * num;
+        }
+      }
+    return ia_err_none;
+  }
+
+  ia_err MAT33D_matrix_operation(const MAT_D_3_3 factor1, const MAT_D_3_3 factor2, char oper, MAT_D_3_3 res) {
+    uint32_t N = 3, M = 3;
+    switch (oper)
+    {
+    case '+':
+        for (uint32_t i = 0U; i < N; i++) {
+            for (uint32_t j = 0U; j < M; j++) {
+                res[i][j] = factor1[i][j] + factor2[i][j];
+            }
+        }
+        return ia_err_none;
+    case '-':
+        for (uint32_t i = 0U; i < N; i++) {
+            for (uint32_t j = 0U; j < M; j++) {
+                res[i][j] = factor1[i][j] - factor2[i][j];
+            }
+        }
+        return ia_err_none;
+    case '*':
+        for(uint32_t i =0;i<N;i++) {             
+          double sum = 0;
+          for(uint32_t j=0;j<M;j++) {	
+            sum=0;
+            for(uint32_t k=0;k<M;k++) 
+            {   
+              sum+=factor1[i][k] * factor2[k][j]; 
+            }
+            res[i][j]=sum; 
+          }	
+        }
+        return ia_err_none;
+    case '.':
+        for (uint32_t i = 0U; i < N; i++) {
+            for (uint32_t j = 0U; j < M; j++) {
+                res[i][j] = factor1[i][j] * factor2[i][j];
+            }
+        }
+        return ia_err_none;
+    case '/':
+        for (uint32_t i = 0U; i < N; i++) {
+            for (uint32_t j = 0U; j < M; j++) {
+                if (IA_FABS(factor2[i][j]) < IA_EPSILON)
+                {
+                    return ia_err_data;
+                }
+                else
+                {
+                    res[i][j] = factor1[i][j] / factor2[i][j];
+                }
+            }
+        }
+        return ia_err_none;
+    default:
+        return ia_err_argument;
+    }
+  }
+
+  // operation in place, save result in factor2
+  ia_err MAT33D_matrix_operation_inplace(const MAT_D_3_3 factor1, MAT_D_3_3 factor2, char oper) {
+    uint32_t N = 3, M = 3;
+    switch (oper)
+    {
+    case '+':
+        for (uint32_t i = 0U; i < N; i++) {
+            for (uint32_t j = 0U; j < M; j++) {
+                factor2[i][j] = factor1[i][j] + factor2[i][j];
+            }
+        }
+        return ia_err_none;
+    case '-':
+        for (uint32_t i = 0U; i < N; i++) {
+            for (uint32_t j = 0U; j < M; j++) {
+                factor2[i][j] = factor1[i][j] - factor2[i][j];
+            }
+        }
+        return ia_err_none;
+    case '*':
+        MAT_D_3_3 tmp;
+        for(uint32_t i =0;i<N;i++) {             
+          double sum;
+          for(uint32_t j=0;j<M;j++) {	
+            sum=0;
+            for(uint32_t k=0;k<M;k++) 
+            {   
+              sum+=factor1[i][k] * factor2[k][j]; 
+            }
+            tmp[i][j]=sum; 
+          }	
+        }
+        copy_Mat33d(tmp, factor2);
+        return ia_err_none;
+    case '.':
+        for (uint32_t i = 0U; i < N; i++) {
+            for (uint32_t j = 0U; j < M; j++) {
+                factor2[i][j] = factor1[i][j] * factor2[i][j];
+            }
+        }
+        return ia_err_none;
+    case '/':
+        for (uint32_t i = 0U; i < N; i++) {
+            for (uint32_t j = 0U; j < M; j++) {
+                if (IA_FABS(factor2[i][j]) < IA_EPSILON)
+                {
+                    return ia_err_data;
+                }
+                else
+                {
+                    factor2[i][j] = factor1[i][j] / factor2[i][j];
+                }
+            }
+        }
+        return ia_err_none;
+    default:
+        return ia_err_argument;
+    }
+  }
+
+  ia_err skewd(const Vec3d v, MAT_D_3_3 mat) {
+    memset(mat, 0, 9*sizeof(double));
+    mat[0][1] = -v[2];
+    mat[0][2] = v[1];
+    mat[1][0] = v[2];
+    mat[1][2] = -v[0];
+    mat[2][0] = -v[1];
+    mat[2][1] = v[0];
+    return ia_err_none;
+  }
+
+  double norm_V3d(const Vec3d v) {
+    double res = v[0] *v[0] + v[1] * v[1] + v[2] * v[2];
+    return sqrt(res);
+  }
+
+  ia_err Log_SO3d(const MAT_D_3_3 R, Vec3d v) {
+    Quaterniond q;
+    mat2qua(R, q);
+    //normlize
+
+    double n = norm_V3d(q);
+    double w = q[3];
+    double squared_w = w * w;
+
+    double two_atan_nbyw_by_n;
     // Atan-based log thanks to
     //
     // C. Hertzberg et al.:
@@ -76,16 +284,125 @@ namespace megCV {
       two_atan_nbyw_by_n = 2 * atan(n / w) / n;
     }
 
-    return two_atan_nbyw_by_n * quaternion.vec();
+    v[0] = two_atan_nbyw_by_n * q[0];
+    v[1] = two_atan_nbyw_by_n * q[1];
+    v[2] = two_atan_nbyw_by_n * q[2];
+
+    return ia_err_none;
   }
 
-#define GEN_INVERSE_POSE(type, ref) \
-    type inversePose(const type ref pose) { \
-        type ret = pose; \
-        ret.block<3, 3>(0, 0) = pose.block<3, 3>(0, 0).transpose(); \
-        ret.block<3, 1>(0, 3) = -ret.block<3, 3>(0, 0) * pose.block<3, 1>(0, 3); \
-        return ret; \
+  // copy from https://blog.csdn.net/w_weixiaotao/article/details/109496434
+  ia_err mat2qua(const MAT_D_3_3 m, Quaterniond qua)
+  {
+    double q1 = sqrt(m[0][0] + m[1][1] + m[2][2] + 1) / 2;
+    double q2, q3, q4, tr, s;
+    if (q1 != 0.0) {
+      q2 = (m[2][1] - m[1][2]) / 4 / q1;
+      q3 = (m[0][2] - m[2][0]) / 4 / q1;
+      q4 = (m[1][0] - m[0][1]) / 4 / q1;
     }
+    else {
+      tr = m[0][0] + m[1][1] + m[2][2];
+      if (tr > 0) {
+        s = sqrt(tr + 1.0) * 2;
+        q1 = 0.25 * s;
+        q2 = (m[2][1] - m[1][2]) / s;
+        q3 = (m[0][2] - m[2][0]) / s;
+        q4 = (m[1][0] - m[0][1]) / s;
+      }
+      else if ((m[0][0] > m[1][1]) && (m[0][0] > m[2][2])) {
+        s = sqrt(1.0 + m[0][0] - m[1][1] - m[2][2]) * 2;
+        q1 = (m[2][1] - m[1][2]) / s;
+        q2 = 0.25 * s;
+        q3 = (m[0][1] + m[1][0]) / s;
+        q4 = (m[0][2] + m[2][0]) / s;
+      }
+      else if(m[1][1] > m[2][2])
+      {
+        s = sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2;
+        q1 = (m[0][2] - m[2][0]) / s;
+        q2 = (m[0][1] + m[1][0]) / s;
+        q3 = 0.25 * s;
+        q4 = (m[1][2] + m[2][1]) / s;
+      }
+      else {
+        s = sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]) * 2;
+        q1 = (m[1][0] - m[0][1]) / s;
+        q2 = (m[0][2] + m[2][0]) / s;
+        q3 = (m[1][2] + m[2][1]) / s;
+        q4 = 0.25 * s;
+      }
+    }
+    qua[0] = q1;
+    qua[1] = q2;
+    qua[2] = q3;
+    qua[3] = q4;
+    return ia_err_none;
+  }
+
+  ia_err Exp6d(const Vec6d _dx, Posed pose) {
+    Vec3d p, r;
+    copy_Vec3d(_dx, p);
+    copy_Vec3d(_dx + 3, p);
+    MAT_D_3_3 R;
+    {
+      double theta = norm_V3d(r);
+      if (theta < 1e-9) {
+        set_Identity_Mat33d(R);
+      } else {
+        Vec3d r_norm = {r[0]/theta, r[1]/theta, r[2]/theta};
+        MAT_D_3_3 hatdx;
+        skewd(r_norm, hatdx);
+
+        MAT_D_3_3 tmp1, tmp2;
+        set_Identity_Mat33d(R);
+        MAT33D_times(hatdx, std::sin(theta), tmp1);
+        MAT33D_matrix_operation(hatdx, hatdx, '*', tmp2);
+        MAT33D_times_inplace(tmp2, (1 - std::cos(theta)));
+        MAT33D_matrix_operation_inplace(R, tmp1, '+');
+        MAT33D_matrix_operation_inplace(R, tmp2, '+');
+      }
+    }
+
+    MAT_D_3_3 j;
+    {
+      double theta = norm_V3d(r);
+      if (theta < 1e-9) {
+        set_Identity_Mat33d(j);
+      } else {
+        Vec3d r_norm = {r[0]/theta, r[1]/theta, r[2]/theta};
+        MAT_D_3_3 K;
+        skewd(r_norm, K);
+        MAT_D_3_3 tmp1, tmp2;
+        set_Identity_Mat33d(j);
+        MAT33D_times(K, (1 - std::cos(theta)), tmp1);
+        MAT33D_matrix_operation(K, K, '*', tmp2);
+        MAT33D_times_inplace(tmp2, (1 - std::sin(theta) / theta));
+        MAT33D_matrix_operation_inplace(j, tmp1, '+');
+        MAT33D_matrix_operation_inplace(j, tmp2, '+');
+      }
+    }
+
+    Mat33D_Vec3D_multiply_inplace(j, p);
+    set_Rotation_Posed(pose, R);
+    set_Translate_Posed(pose, p);
+    return ia_err_none;
+  }
+
+  ia_err inversePose(const Posed pose_in, Posed pose_out) { 
+      MAT_D_3_3 rotation;
+      Vec3d trans;
+      Pose_Rotation_part(pose_in, rotation);
+      Pose_Translate_part(pose_in, trans);
+
+      transpose_Mat33d_inplace(rotation);
+      set_Rotation_Posed(pose_out, rotation);
+      MAT33D_times_inplace(rotation, -1.0);
+      Mat33D_Vec3D_multiply_inplace(rotation, trans);
+      set_Translate_Posed(pose_out, trans);
+
+      return ia_err_none; 
+  }
 
 
 #define GEN_MUL_POSE(type, ref) \
@@ -318,58 +635,7 @@ namespace megCV {
     return;
   }
 
-  Posed Exp6d(const Vec6d &_dx) {
-    Vec3d p = _dx.block<3, 1>(0, 0);
-    Vec3d r = _dx.block<3, 1>(3, 0);
-    Mat3d R;
-    {
-      float theta = r.norm();
-      if (theta < 1e-9) {
-        R = Mat3d::Identity();
-      } else {
-        Vec3d r_norm = r / theta;
-        Mat3d hatdx;
-        hatdx(0, 0) = 0.0;
-        hatdx(0, 1) = -r_norm(2);
-        hatdx(0, 2) = r_norm(1);
-        hatdx(1, 0) = r_norm(2);
-        hatdx(1, 1) = 0.0;
-        hatdx(1, 2) = -r_norm(0);
-        hatdx(2, 0) = -r_norm(1);
-        hatdx(2, 1) = r_norm(0);
-        hatdx(2, 2) = 0.0;
-        R = Mat3d::Identity() + std::sin(theta) * hatdx +
-            (1 - std::cos(theta)) * hatdx * hatdx;
-      }
-    }
 
-    Mat3d j;
-    {
-      float theta = r.norm();
-      if (theta < 1e-9) {
-        j = Mat3d::Identity();
-      } else {
-        Vec3d r_norm = r / theta;
-        Mat3d K;
-        K(0, 0) = 0.0;
-        K(0, 1) = -r_norm(2);
-        K(0, 2) = r_norm(1);
-        K(1, 0) = r_norm(2);
-        K(1, 1) = 0.0;
-        K(1, 2) = -r_norm(0);
-        K(2, 0) = -r_norm(1);
-        K(2, 1) = r_norm(0);
-        K(2, 2) = 0.0;
-        j = Mat3d::Identity() - (1 - std::cos(theta)) / theta * K +
-            (1 - std::sin(theta) / theta) * K * K;
-      }
-    }
-
-    Posed T = megCV::Identity34d();
-    T.block<3, 3>(0, 0) = R;
-    T.block<3, 1>(0, 3) = j * p;
-    return T;
-  }
 
   int optimize_se3(const std::vector<Vec3d> &_pts3d_ref, const std::vector<Vec2d> &_pts2d_cur,
                    const Mat3d &_K_cur, Mat34d &_Tcr, std::vector<uchar> &_inliers,
@@ -1005,4 +1271,3 @@ namespace megCV {
       _intrinsic.push_back((double) alpha);
     }
   }
-}

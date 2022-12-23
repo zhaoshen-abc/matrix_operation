@@ -1,62 +1,50 @@
-#ifndef _GEOMETRY_H
-#define _GEOMETRY_H
+#ifndef ACV_GEOMETRY_H
+#define ACV_GEOMETRY_H
 
-#include "ia_abstraction.h"
-#include "ac_auxiliary.h"
-#include "macro.h"
+#include "Eigen/Dense"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-  typedef double MAT_D_3_3[3][3];
-  typedef double Posed[3][4];
-  typedef double Vec3d[3];
-  typedef double Vec6d[6]; // [x y z rx ry rz]
-  typedef double Quaterniond[3];
+#include "../base.h"
 
-  // using vMat2d = aligned_vector<Mat2d>;
+namespace megCV {
+  typedef Eigen::Matrix<float_, 2, 1> Vec2d;
+  typedef Eigen::Matrix<float_, 3, 1> Vec3f;
+  typedef Eigen::Matrix<float_, 3, 1> Vec3d;
+  typedef Eigen::Matrix<float_, 2, 2> Mat2d;
+  typedef Eigen::Matrix<float_, 3, 3> Mat3d;
+  typedef Eigen::Matrix<float_, 3, 4> Mat34d;
+  typedef Eigen::Matrix<float_, 4, 4> Mat44d;
+  typedef Eigen::Matrix<float_, 6, 1> Vec6d;
+  typedef Eigen::Matrix<float_, 6, 6> Mat6d;
 
-  // using vPoint2f = std::vector<cv::Point2f>;
+  typedef std::vector<Vec2d, Eigen::aligned_allocator<Vec2d>> vVec2d;
+  typedef std::vector<Vec3d, Eigen::aligned_allocator<Vec3d>> vVec3d;
+  typedef std::vector<Vec2d, Eigen::aligned_allocator<Vec2d>> vVec2d;
+  typedef std::vector<Mat3d, Eigen::aligned_allocator<Mat3d>> vMat3d;
+  typedef std::vector<Mat34d, Eigen::aligned_allocator<Mat34d>> vMat34d;
 
-  // const Posed &Identity34d();
+  typedef Eigen::Matrix<float_, Eigen::Dynamic, Eigen::Dynamic> MatXf;
 
-  ia_err copy_Vec3d(const Vec3d v_in, Vec3d v_out);
+  typedef Mat3d Rotationd;
+  typedef Mat34d Posed;
 
-  ia_err copy_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
+  template<typename T>
+  using aligned_vector = std::vector<T, Eigen::aligned_allocator<T>>;
 
-  ia_err transpose_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
+  using vMat2d = aligned_vector<Mat2d>;
 
-  ia_err transpose_Mat33d_inplace(MAT_D_3_3 mat);
+  using vPoint2f = std::vector<cv::Point2f>;
 
-  ia_err set_Identity_Posed(Posed pose);
+  const Posed &Identity34d();
 
-  ia_err set_Translate_Posed(Posed pose, const Vec3d trans);
+  Mat3d skewd(const Vec3d &v);
 
-  ia_err set_Rotation_Posed(Posed pose, const MAT_D_3_3 rotation);
+  Mat3d skewd(const Vec3d &&v);
 
-  ia_err Pose_Translate_part(const Posed pose, Vec3d trans);
+  Vec3d Log_SO3d(const Mat3d &R);
 
-  ia_err Pose_Rotation_part(const Posed pose, MAT_D_3_3 rotation);
+  Vec3d Log_SO3d(const Mat3d &&R);
 
-  ia_err set_Identity_Mat33d(MAT_D_3_3 mat);
-
-  ia_err Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const Vec3d v, Vec3d res);
-
-  ia_err MAT33D_times(const MAT_D_3_3 mat, double num, MAT_D_3_3 res);
-
-  ia_err MAT33D_matrix_operation(const MAT_D_3_3 factor1, const MAT_D_3_3 factor2, char oper, MAT_D_3_3 res);
-
-  ia_err MAT33D_matrix_operation_inplace(const MAT_D_3_3 factor1, MAT_D_3_3 factor2, char oper);
-
-  ia_err skewd(const Vec3d v, MAT_D_3_3 mat);
-
-  double norm_V3d(const Vec3d v);
-
-  ia_err Log_SO3d(const MAT_D_3_3 R, Vec3d v);
-
-  ia_err mat2qua(const MAT_D_3_3 m, Quaterniond qua);
-
-  ia_err Exp6d(const Vec6d _dx, Posed pose);
+  Posed Exp6d(const Vec6d &_dx);
 
   inline Vec2d world2cam(const Vec3d &xyz_c, const Mat3d &K) {
     Vec2d p = xyz_c.head<2>() / xyz_c(2);
@@ -205,11 +193,7 @@ extern "C" {
   void triangulate(const Posed &T_WC_1, const Posed &T_WC_2, const Vec3d &f1, const Vec3d &f2, Vec3d &pw);
 
   void computeCs(const Posed &Rwc_m, const Vec3d &v1, const Posed &Rwc_a, const Vec3d &v2, Vec2d &cstheta);
-
-
-
-#ifdef __cplusplus
 }
-#endif
 
-#endif //_GEOMETRY_H
+
+#endif //ACV_GEOMETRY_H
