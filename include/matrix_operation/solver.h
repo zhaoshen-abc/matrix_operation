@@ -42,6 +42,21 @@ typedef struct
 /*!
  *  \brief n x n dialog matrix.
  *  ex:
+ *  ⌈a0  0  0  0⌉
+ *  |a1 a2  0  0|
+ *  |a3 a4 a5  0|
+ *  ⌊a6 a7 a8 a9⌋
+ */
+typedef struct
+{
+    double *data;       /*!< data of matrix*/
+    uint32_t n;         /*!< number of col and row*/
+    // uint32_t s;         /*!< number of stride*/
+} lower_triangular_double_t;
+
+/*!
+ *  \brief n x n dialog matrix.
+ *  ex:
  *  ⌈ 0 a0 a1 a2⌉
  *  | 0  0 a3 a4|
  *  | 0  0  0 a5|
@@ -120,7 +135,13 @@ ia_err diagonal_2_matrix(diagonal_double_t* A, ac_matrix_double_t* mat);
 int RtDRdecomp_D(double *A, int N);
 // ia_err RtDRdecomp_D(upper_triangular_double_t* A);
 
+bool isOrthogonal(symmetric_double_t A);
+
 ia_err Symmetric_RtDRdecomp(const symmetric_double_t* A, unit_diag_triangular_double_t* R, diagonal_double_t* D);
+
+ia_err SVD_decompositon(const ac_matrix_double_t A, symmetric_double_t U, diagonal_double_t sigma, symmetric_double_t V);
+
+ia_err LU_decompositon(const ac_matrix_double_t A, upper_triangular_double_t L, lower_triangular_double_t U);
 
 // ex:
 // H = {a1, a2, a3,

@@ -54,157 +54,152 @@ extern "C" {
 
   ia_err Log_SO3d(const MAT_D_3_3 R, Vec3d v);
 
+  ia_err Exp6d(const Vec6d _dx, Posed pose);
+  
   ia_err mat2qua(const MAT_D_3_3 m, Quaterniond qua);
 
-  ia_err Exp6d(const Vec6d _dx, Posed pose);
+  ia_err inversePose(const Posed pose_in, Posed pose_out);
+  
+  ia_err inversePose_inplace(Posed pose);
 
-  inline Vec2d world2cam(const Vec3d &xyz_c, const Mat3d &K) {
-    Vec2d p = xyz_c.head<2>() / xyz_c(2);
-    p(0) = K(0, 0) * p(0) + K(0, 2);
-    p(1) = K(1, 1) * p(1) + K(1, 2);
-    return p;
-  }
+  ia_err multipyPose(const Posed lpose, const Posed rpose, Posed res);
 
-  inline Vec2d world2cam(const Vec3d &&xyz_c, const Mat3d &K) {
-    Vec2d p = xyz_c.head<2>() / xyz_c(2);
-    p(0) = K(0, 0) * p(0) + K(0, 2);
-    p(1) = K(1, 1) * p(1) + K(1, 2);
-    return p;
-  }
+  ia_err multipyPose_inplace(const Posed lpose, Posed rpose);
 
-  inline Vec3d cam2world(const Vec2d &px, Mat3d Kinv) {
-    Vec3d p(px(0), px(1), 1.0);
-    p(0) = Kinv(0, 0) * p(0) + Kinv(0, 2);
-    p(1) = Kinv(1, 1) * p(1) + Kinv(1, 2);
-    return p.normalized();
-  }
+  // inline Vec2d world2cam(const Vec3d &xyz_c, const Mat3d &K) {
+  //   Vec2d p = xyz_c.head<2>() / xyz_c(2);
+  //   p(0) = K(0, 0) * p(0) + K(0, 2);
+  //   p(1) = K(1, 1) * p(1) + K(1, 2);
+  //   return p;
+  // }
 
-  inline Vec3d cam2world(const Vec2d &&px, Mat3d Kinv) {
-    Vec3d p(px(0), px(1), 1.0);
-    p(0) = Kinv(0, 0) * p(0) + Kinv(0, 2);
-    p(1) = Kinv(1, 1) * p(1) + Kinv(1, 2);
-    return p.normalized();
-  }
+  // inline Vec2d world2cam(const Vec3d &&xyz_c, const Mat3d &K) {
+  //   Vec2d p = xyz_c.head<2>() / xyz_c(2);
+  //   p(0) = K(0, 0) * p(0) + K(0, 2);
+  //   p(1) = K(1, 1) * p(1) + K(1, 2);
+  //   return p;
+  // }
 
-  inline Vec3d transfromPoint(const Mat34d &T_12, const Vec3d &p2) {
-    Vec3d p1 = T_12.block<3, 3>(0, 0) * p2 + T_12.block<3, 1>(0, 3);
-    return p1;
-  }
+  // inline Vec3d cam2world(const Vec2d &px, Mat3d Kinv) {
+  //   Vec3d p(px(0), px(1), 1.0);
+  //   p(0) = Kinv(0, 0) * p(0) + Kinv(0, 2);
+  //   p(1) = Kinv(1, 1) * p(1) + Kinv(1, 2);
+  //   return p.normalized();
+  // }
 
-  Mat34d inversePose(const Mat34d &pose);
+  // inline Vec3d cam2world(const Vec2d &&px, Mat3d Kinv) {
+  //   Vec3d p(px(0), px(1), 1.0);
+  //   p(0) = Kinv(0, 0) * p(0) + Kinv(0, 2);
+  //   p(1) = Kinv(1, 1) * p(1) + Kinv(1, 2);
+  //   return p.normalized();
+  // }
 
-  Mat34d inversePose(const Mat34d &&pose);
+  // inline Vec3d transfromPoint(const Mat34d &T_12, const Vec3d &p2) {
+  //   Vec3d p1 = T_12.block<3, 3>(0, 0) * p2 + T_12.block<3, 1>(0, 3);
+  //   return p1;
+  // }
 
-  Mat34d multipyPose(const Mat34d &lth, const Mat34d &rth);
+  // bool Triangulate_PBA_depth(const Mat34d &dT_12,
+  //                            const Vec3d &v1,
+  //                            const Vec3d &v2, double &depth);
 
-  Mat34d multipyPose(const Mat34d &&lth, const Mat34d &&rth);
+  // bool Triangulate_PBA_idepth(const Mat34d &dT_12,
+  //                            const Vec3d &v1,
+  //                            const Vec3d &v2, double &idepth);
 
-  Mat34d multipyPose(const Mat34d &pose1, const Mat34d &pose2, const Mat34d &pose3);
+  // Vec3d ComputeEpipolarRes(const Mat34d &T1, const Mat34d &T2,
+  //                          const Vec3d &v1, const Vec3d &v2);
 
-  Mat34d multipyPose(const Mat34d &&pose1, const Mat34d &&pose2, const Mat34d &&pose3);
+  // bool checkEpipolarConstraint(const Mat34d &dT_12,
+  //                              const Vec3d &v1, const Vec3d &v2,
+  //                              double norm_th = 0.005);
 
+  // void
+  // calculate_RT_error(const megCV::Posed &_pose_cur_ref, const megCV::Posed &_guess_pose_cur_ref, float &_R_error,
+  //                    float &_T_error);
 
-  bool Triangulate_PBA_depth(const Mat34d &dT_12,
-                             const Vec3d &v1,
-                             const Vec3d &v2, double &depth);
+  // int optimize_se3(const std::vector<Vec3d> &_pts3d_ref, const std::vector<Vec2d> &_pts2d_cur,
+  //                  const Mat3d &_K_cur, Mat34d &_Tcr, std::vector<uchar> &_inliers,
+  //                  int _optimize_max_ites);
 
-  bool Triangulate_PBA_idepth(const Mat34d &dT_12,
-                             const Vec3d &v1,
-                             const Vec3d &v2, double &idepth);
+  // class CamModel {
+  // public:
+  //   CamModel() {}
 
-  Vec3d ComputeEpipolarRes(const Mat34d &T1, const Mat34d &T2,
-                           const Vec3d &v1, const Vec3d &v2);
+  //   // RadiaTan: fx, fy, cx, cy, d0, d1, d2, d3, d4
+  //   // Equi: fx, fy, cx, cy, d0, d1, d2, d3
+  //   // DoubleShpere: fx, fy, cx, cy, xi, alpha
+  //   explicit CamModel(std::string _model, const std::vector<float> &_params);
 
-  bool checkEpipolarConstraint(const Mat34d &dT_12,
-                               const Vec3d &v1, const Vec3d &v2,
-                               double norm_th = 0.005);
+  //   explicit CamModel(std::string _model, const std::vector<double> &_params);
 
-  void
-  calculate_RT_error(const megCV::Posed &_pose_cur_ref, const megCV::Posed &_guess_pose_cur_ref, float &_R_error,
-                     float &_T_error);
+  //   void setCamModel(std::string _model, const std::vector<float> &_params);
 
-  int optimize_se3(const std::vector<Vec3d> &_pts3d_ref, const std::vector<Vec2d> &_pts2d_cur,
-                   const Mat3d &_K_cur, Mat34d &_Tcr, std::vector<uchar> &_inliers,
-                   int _optimize_max_ites);
+  //   void setCamModel(std::string _model, const std::vector<double> &_params);
 
-  class CamModel {
-  public:
-    CamModel() {}
+  //   // Point in cam coordinate is normalized
+  //   Vec3d cam2world(const cv::Point2f &px) const;
 
-    // RadiaTan: fx, fy, cx, cy, d0, d1, d2, d3, d4
-    // Equi: fx, fy, cx, cy, d0, d1, d2, d3
-    // DoubleShpere: fx, fy, cx, cy, xi, alpha
-    explicit CamModel(std::string _model, const std::vector<float> &_params);
+  //   cv::Point2f world2cam(const Vec3d &pt, bool distort = true) const;
 
-    explicit CamModel(std::string _model, const std::vector<double> &_params);
+  //   void world2cam(const vVec3d &pts3D, std::vector<cv::Point2f> &pts2D, bool distort = true) const;
 
-    void setCamModel(std::string _model, const std::vector<float> &_params);
+  //   // Every points in cam coordinate is normalized
+  //   void cam2world(const std::vector<cv::Point2f> &pts2D, vVec3d &pts3D) const;
 
-    void setCamModel(std::string _model, const std::vector<double> &_params);
+  //   std::string getModelName() const;
 
-    // Point in cam coordinate is normalized
-    Vec3d cam2world(const cv::Point2f &px) const;
+  //   // RadiaTan: fx, fy, cx, cy, d0, d1, d2, d3, d4
+  //   // Equi: fx, fy, cx, cy, d0, d1, d2, d3
+  //   // DoubleShpere: fx, fy, cx, cy, xi, alpha
+  //   void getIntrinsic(std::vector<float> &_intrinsic) const;
 
-    cv::Point2f world2cam(const Vec3d &pt, bool distort = true) const;
+  //   void getIntrinsic(std::vector<double> &_intrinsic) const;
 
-    void world2cam(const vVec3d &pts3D, std::vector<cv::Point2f> &pts2D, bool distort = true) const;
+  //   bool alreadySetModel() const { return alreadySet; }
 
-    // Every points in cam coordinate is normalized
-    void cam2world(const std::vector<cv::Point2f> &pts2D, vVec3d &pts3D) const;
+  // private:
+  //   std::string model;
 
-    std::string getModelName() const;
+  //   bool alreadySet = false;
 
-    // RadiaTan: fx, fy, cx, cy, d0, d1, d2, d3, d4
-    // Equi: fx, fy, cx, cy, d0, d1, d2, d3
-    // DoubleShpere: fx, fy, cx, cy, xi, alpha
-    void getIntrinsic(std::vector<float> &_intrinsic) const;
+  //   //RadialTanCamera
+  //   mutable std::vector<cv::Point3f> pt3d;
+  //   mutable std::vector<cv::Point2f> pt2d;
+  //   cv::Mat cvK;
+  //   cv::Mat cvKinv;
+  //   cv::Mat distortParam;
 
-    void getIntrinsic(std::vector<double> &_intrinsic) const;
+  //   //EquiCamera
+  //   mutable std::vector<cv::Point2f> und_pt2d;
+  //   mutable std::vector<cv::Point2f> dis_pt2d;
 
-    bool alreadySetModel() const { return alreadySet; }
+  //   //DoubleShpereCamera
+  //   float xi, alpha;
+  // };
 
-  private:
-    std::string model;
+  // void getWarpMatrixAffine(const Mat3d &cam_ref,
+  //                          const Mat3d &cam_cur,
+  //                          const Vec2d &px_ref,
+  //                          const Vec3d &f_ref,
+  //                          const double depth_ref,
+  //                          const Mat3d &R_cur_ref,
+  //                          const Vec3d &T_cur_ref,
+  //                          const int level_ref,
+  //                          const int halfpatch_size,
+  //                          Mat2d &A_cur_ref);
 
-    bool alreadySet = false;
+  // void getWarpMatrixAffine(const CamModel &cam_ref,
+  //                          const CamModel &cam_cur,
+  //                          const vPoint2f &pt2ds_ref,
+  //                          const vVec3d &pt3ds_ref,
+  //                          const Posed &T_cur_ref,
+  //                          const int halfpatch_size,
+  //                          vMat2d &A_cur_ref);
 
-    //RadialTanCamera
-    mutable std::vector<cv::Point3f> pt3d;
-    mutable std::vector<cv::Point2f> pt2d;
-    cv::Mat cvK;
-    cv::Mat cvKinv;
-    cv::Mat distortParam;
+  // void triangulate(const Posed &T_WC_1, const Posed &T_WC_2, const Vec3d &f1, const Vec3d &f2, Vec3d &pw);
 
-    //EquiCamera
-    mutable std::vector<cv::Point2f> und_pt2d;
-    mutable std::vector<cv::Point2f> dis_pt2d;
-
-    //DoubleShpereCamera
-    float xi, alpha;
-  };
-
-  void getWarpMatrixAffine(const Mat3d &cam_ref,
-                           const Mat3d &cam_cur,
-                           const Vec2d &px_ref,
-                           const Vec3d &f_ref,
-                           const double depth_ref,
-                           const Mat3d &R_cur_ref,
-                           const Vec3d &T_cur_ref,
-                           const int level_ref,
-                           const int halfpatch_size,
-                           Mat2d &A_cur_ref);
-
-  void getWarpMatrixAffine(const CamModel &cam_ref,
-                           const CamModel &cam_cur,
-                           const vPoint2f &pt2ds_ref,
-                           const vVec3d &pt3ds_ref,
-                           const Posed &T_cur_ref,
-                           const int halfpatch_size,
-                           vMat2d &A_cur_ref);
-
-  void triangulate(const Posed &T_WC_1, const Posed &T_WC_2, const Vec3d &f1, const Vec3d &f2, Vec3d &pw);
-
-  void computeCs(const Posed &Rwc_m, const Vec3d &v1, const Posed &Rwc_a, const Vec3d &v2, Vec2d &cstheta);
+  // void computeCs(const Posed &Rwc_m, const Vec3d &v1, const Posed &Rwc_a, const Vec3d &v2, Vec2d &cstheta);
 
 
 
