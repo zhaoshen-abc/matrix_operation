@@ -1,10 +1,29 @@
 #include "geometry.h"
 #include "ia_abstraction.h"
-  // const Posed &Identity34d() {
-  //   Identity34(Posed)
+
+
+  void ac_MAT_D_3_3_print(const MAT_D_3_3 mat) {
+    uint32_t i = 0U;
+    for (i = 0U; i < 3U; i++)
+    {
+        AC_LOG("%f, %f, %f", mat[i][0], mat[i][1], mat[i][2]);
+    }
+  }
+
+  void ac_POSE_D_print(const POSE_D mat) {
+    for (uint32_t i = 0U; i < 3U; i++)
+    {
+      AC_LOG("%f, %f, %f, %f", mat[i][0], mat[i][1], mat[i][2], mat[i][3]);
+    }
+    AC_LOG("%f, %f, %f, %f", 0.0, 0.0, 0.0, 1.0);
+  }
+
+  // void ac_VEC_D_3_print(const VEC_D_3 vec) {
+  //   AC_LOG("%f, %f, %f", vec[0], vec[1], vec[2]);
   // }
 
-  ia_err copy_Vec3d(const Vec3d v_in, Vec3d v_out) {
+
+  ia_err copy_VEC_D_3(const VEC_D_3 v_in, VEC_D_3 v_out) {
     v_out[0] = v_in[0];
     v_out[1] = v_in[1];
     v_out[2] = v_in[2];
@@ -20,7 +39,7 @@
     return ia_err_none;
   }
 
-  ia_err copy_Posed(const Posed pose_in, Posed pose_out) {
+  ia_err copy_POSE_D(const POSE_D pose_in, POSE_D pose_out) {
     for (uint32_t i = 0; i < 3; i ++ ) {
       for (uint32_t j = 0; j < 4; j ++ ) {
         pose_out[i][j] = pose_in[i][j];
@@ -47,7 +66,7 @@
     }
   }
 
-  ia_err set_Identity_Posed(Posed pose) {
+  ia_err set_Identity_POSE_D(POSE_D pose) {
     memset(pose, 0, 12*sizeof(double));
     pose[0][0] = 1.0;
     pose[1][1] = 1.0;
@@ -55,14 +74,14 @@
     return ia_err_none;
   }
 
-  ia_err set_Translate_Posed(Posed pose, const Vec3d trans) {
+  ia_err set_Translate_POSE_D(POSE_D pose, const VEC_D_3 trans) {
     for (uint32_t i = 0; i < 3; i ++ ) {
         pose[i][3] = trans[i];
     }
     return ia_err_none;
   }
 
-  ia_err set_Rotation_Posed(Posed pose, const MAT_D_3_3 rotation) {
+  ia_err set_Rotation_POSE_D(POSE_D pose, const MAT_D_3_3 rotation) {
     for (uint32_t i = 0; i < 3; i ++ ) {
       for (uint32_t j = 0; j < 3; j ++ ) {
         pose[i][j] = rotation[i][j];
@@ -71,15 +90,15 @@
     return ia_err_none;
   }
 
-  ia_err Pose_Translate_part(const Posed pose, Vec3d trans) {
+  ia_err Pose_Translate_part(const POSE_D pose, VEC_D_3 trans) {
     trans[0] = pose[0][3];
     trans[1] = pose[1][3];
     trans[2] = pose[2][3];
   }
 
-  ia_err Pose_Rotation_part(const Posed pose, MAT_D_3_3 rotation) {
+  ia_err Pose_Rotation_part(const POSE_D pose, MAT_D_3_3 rotation) {
     for (uint32_t i = 0U; i < 3; i++) {
-      for (uint32_t j = 0U; j < 3; i++) {
+      for (uint32_t j = 0U; j < 3; j++) {
         rotation[i][j] = pose[i][j];
       }
     }
@@ -92,23 +111,34 @@
     mat[2][2] = 1;
   }
 
-  ia_err Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const Vec3d v, Vec3d res) {
+  ia_err Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const VEC_D_3 v, VEC_D_3 res) {
+    memset(res, 0, sizeof(double) * 3);
     for (uint32_t i = 0U; i < 3; i++) {
-      for (uint32_t j = 0U; j < 3; i++) {
-        res[i] += mat[i][j] * v[i];
+      for (uint32_t j = 0U; j < 3; j++) {
+        res[i] += mat[i][j] * v[j];
       }
     }
     return ia_err_none;
   }
 
-  ia_err Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, Vec3d v) {
-    Vec3d tmp;
+  ia_err Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, VEC_D_3 v) {
+    VEC_D_3 tmp = {0.0, 0.0, 0.0};
     for (uint32_t i = 0U; i < 3; i++) {
-      for (uint32_t j = 0U; j < 3; i++) {
-        tmp[i] += mat[i][j] * v[i];
+      for (uint32_t j = 0U; j < 3; j++) {
+        tmp[i] += mat[i][j] * v[j];
       }
     }
-    copy_Vec3d(tmp, v);
+    copy_VEC_D_3(tmp, v);
+    return ia_err_none;
+  }
+
+  ia_err MAT33D_times(const MAT_D_3_3 mat, double num, MAT_D_3_3 res) {
+    uint32_t N = 3, M = 3;
+    for (uint32_t i = 0U; i < N; i++) {
+      for (uint32_t j = 0U; j < M; j++) {
+          res[i][j] = mat[i][j] * num;
+        }
+      }
     return ia_err_none;
   }
 
@@ -199,6 +229,7 @@
         }
         return ia_err_none;
     case '*':
+    {
         MAT_D_3_3 tmp;
         for(uint32_t i =0;i<N;i++) {             
           double sum;
@@ -213,6 +244,7 @@
         }
         copy_Mat33d(tmp, factor2);
         return ia_err_none;
+    }
     case '.':
         for (uint32_t i = 0U; i < N; i++) {
             for (uint32_t j = 0U; j < M; j++) {
@@ -239,7 +271,7 @@
     }
   }
 
-  ia_err skewd(const Vec3d v, MAT_D_3_3 mat) {
+  ia_err skewd(const VEC_D_3 v, MAT_D_3_3 mat) {
     memset(mat, 0, 9*sizeof(double));
     mat[0][1] = -v[2];
     mat[0][2] = v[1];
@@ -250,13 +282,13 @@
     return ia_err_none;
   }
 
-  double norm_V3d(const Vec3d v) {
+  double norm_V3d(const VEC_D_3 v) {
     double res = v[0] *v[0] + v[1] * v[1] + v[2] * v[2];
     return sqrt(res);
   }
 
-  ia_err Log_SO3d(const MAT_D_3_3 R, Vec3d v) {
-    Quaterniond q;
+  ia_err Log_SO3d(const MAT_D_3_3 R, VEC_D_3 v) {
+    Quaternion_D q;
     mat2qua(R, q);
     //normlize
 
@@ -296,8 +328,66 @@
     return ia_err_none;
   }
 
+  ia_err Exp3d(const VEC_D_3 _dx, MAT_D_3_3 R) {
+
+  }
+
+  // ia_err Exp6d(const VEC_D_6 _dx, POSE_D T) {
+  //   Vec3d p = _dx.block<3, 1>(0, 0);
+  //   Vec3d r = _dx.block<3, 1>(3, 0);
+  //   Mat3d R;
+  //   {
+  //     float theta = r.norm();
+  //     if (theta < 1e-9) {
+  //       R = Mat3d::Identity();
+  //     } else {
+  //       Vec3d r_norm = r / theta;
+  //       Mat3d hatdx;
+  //       hatdx(0, 0) = 0.0;
+  //       hatdx(0, 1) = -r_norm(2);
+  //       hatdx(0, 2) = r_norm(1);
+  //       hatdx(1, 0) = r_norm(2);
+  //       hatdx(1, 1) = 0.0;
+  //       hatdx(1, 2) = -r_norm(0);
+  //       hatdx(2, 0) = -r_norm(1);
+  //       hatdx(2, 1) = r_norm(0);
+  //       hatdx(2, 2) = 0.0;
+  //       R = Mat3d::Identity() + std::sin(theta) * hatdx +
+  //           (1 - std::cos(theta)) * hatdx * hatdx;
+  //     }
+  //   }
+
+  //   Mat3d j;
+  //   {
+  //     float theta = r.norm();
+  //     if (theta < 1e-9) {
+  //       j = Mat3d::Identity();
+  //     } else {
+  //       Vec3d r_norm = r / theta;
+  //       Mat3d K;
+  //       K(0, 0) = 0.0;
+  //       K(0, 1) = -r_norm(2);
+  //       K(0, 2) = r_norm(1);
+  //       K(1, 0) = r_norm(2);
+  //       K(1, 1) = 0.0;
+  //       K(1, 2) = -r_norm(0);
+  //       K(2, 0) = -r_norm(1);
+  //       K(2, 1) = r_norm(0);
+  //       K(2, 2) = 0.0;
+  //       j = Mat3d::Identity() - (1 - std::cos(theta)) / theta * K +
+  //           (1 - std::sin(theta) / theta) * K * K;
+  //     }
+  //   }
+
+  //   Posed T = megCV::Identity34d();
+  //   T.block<3, 3>(0, 0) = R;
+  //   T.block<3, 1>(0, 3) = j * p;
+  //   return T;
+  // }
+
+
   // copy from https://blog.csdn.net/w_weixiaotao/article/details/109496434
-  ia_err mat2qua(const MAT_D_3_3 m, Quaterniond qua)
+  ia_err mat2qua(const MAT_D_3_3 m, Quaternion_D qua)
   {
     double q1 = sqrt(m[0][0] + m[1][1] + m[2][2] + 1) / 2;
     double q2, q3, q4, tr, s;
@@ -345,25 +435,25 @@
     return ia_err_none;
   }
 
-  ia_err Exp6d(const Vec6d _dx, Posed pose) {
-    Vec3d p, r;
-    copy_Vec3d(_dx, p);
-    copy_Vec3d(_dx + 3, p);
+  ia_err Exp6d(const VEC_D_6 _dx, POSE_D pose) {
+    VEC_D_3 p, r;
+    copy_VEC_D_3(_dx, p);
+    copy_VEC_D_3(_dx + 3, p);
     MAT_D_3_3 R;
     {
       double theta = norm_V3d(r);
       if (theta < 1e-9) {
         set_Identity_Mat33d(R);
       } else {
-        Vec3d r_norm = {r[0]/theta, r[1]/theta, r[2]/theta};
+        VEC_D_3 r_norm = {r[0]/theta, r[1]/theta, r[2]/theta};
         MAT_D_3_3 hatdx;
         skewd(r_norm, hatdx);
 
         MAT_D_3_3 tmp1, tmp2;
         set_Identity_Mat33d(R);
-        MAT33D_times(hatdx, std::sin(theta), tmp1);
+        MAT33D_times(hatdx, sin(theta), tmp1);
         MAT33D_matrix_operation(hatdx, hatdx, '*', tmp2);
-        MAT33D_times_inplace(tmp2, (1 - std::cos(theta)));
+        MAT33D_times_inplace(tmp2, (1 - cos(theta)));
         MAT33D_matrix_operation_inplace(R, tmp1, '+');
         MAT33D_matrix_operation_inplace(R, tmp2, '+');
       }
@@ -375,103 +465,103 @@
       if (theta < 1e-9) {
         set_Identity_Mat33d(j);
       } else {
-        Vec3d r_norm = {r[0]/theta, r[1]/theta, r[2]/theta};
+        VEC_D_3 r_norm = {r[0]/theta, r[1]/theta, r[2]/theta};
         MAT_D_3_3 K;
         skewd(r_norm, K);
         MAT_D_3_3 tmp1, tmp2;
         set_Identity_Mat33d(j);
-        MAT33D_times(K, (1 - std::cos(theta)), tmp1);
+        MAT33D_times(K, (1 - cos(theta)), tmp1);
         MAT33D_matrix_operation(K, K, '*', tmp2);
-        MAT33D_times_inplace(tmp2, (1 - std::sin(theta) / theta));
+        MAT33D_times_inplace(tmp2, (1 - sin(theta) / theta));
         MAT33D_matrix_operation_inplace(j, tmp1, '+');
         MAT33D_matrix_operation_inplace(j, tmp2, '+');
       }
     }
 
     Mat33D_Vec3D_multiply_inplace(j, p);
-    set_Rotation_Posed(pose, R);
-    set_Translate_Posed(pose, p);
+    set_Rotation_POSE_D(pose, R);
+    set_Translate_POSE_D(pose, p);
     return ia_err_none;
   }
 
-  ia_err inversePose(const Posed pose_in, Posed pose_out) { 
+  ia_err inversePose(const POSE_D pose_in, POSE_D pose_out) { 
       MAT_D_3_3 rotation;
-      Vec3d trans;
+      VEC_D_3 trans;
       Pose_Rotation_part(pose_in, rotation);
       Pose_Translate_part(pose_in, trans);
 
       transpose_Mat33d_inplace(rotation);
-      set_Rotation_Posed(pose_out, rotation);
+      set_Rotation_POSE_D(pose_out, rotation);
       MAT33D_times_inplace(rotation, -1.0);
       Mat33D_Vec3D_multiply_inplace(rotation, trans);
-      set_Translate_Posed(pose_out, trans);
+      set_Translate_POSE_D(pose_out, trans);
 
       return ia_err_none; 
   }
 
 
-  ia_err inversePose_inplace(Posed pose) { 
+  ia_err inversePose_inplace(POSE_D pose) { 
       MAT_D_3_3 rotation;
-      Vec3d trans;
+      VEC_D_3 trans;
       Pose_Rotation_part(pose, rotation);
       Pose_Translate_part(pose, trans);
 
       transpose_Mat33d_inplace(rotation);
-      set_Rotation_Posed(pose, rotation);
+      set_Rotation_POSE_D(pose, rotation);
       MAT33D_times_inplace(rotation, -1.0);
       Mat33D_Vec3D_multiply_inplace(rotation, trans);
-      set_Translate_Posed(pose, trans);
+      set_Translate_POSE_D(pose, trans);
 
       return ia_err_none; 
   }
 
-  ia_err multipyPose(const Posed lpose, const Posed rpose, Posed res) { \
+  ia_err multipyPose(const POSE_D lpose, const POSE_D rpose, POSE_D res) { \
     MAT_D_3_3 lrot, rrot, rot;
     Pose_Rotation_part(lpose, lrot);
     Pose_Rotation_part(rpose, rrot);
     MAT33D_matrix_operation(lrot, rrot, '*', rot);
-    set_Rotation_Posed(res, rot);
+    set_Rotation_POSE_D(res, rot);
 
-    Vec3d ltrans, rtrans, trans;
+    VEC_D_3 ltrans, rtrans, trans;
     Pose_Translate_part(lpose, ltrans);
     Pose_Translate_part(rpose, rtrans);
     Mat33D_Vec3D_multiply_inplace(lrot, rtrans);
 
     for (uint32_t i = 0; i < 3; i ++ ) 
       trans[i] = rtrans[i] + ltrans[i];
-    set_Translate_Posed(res, trans);
+    set_Translate_POSE_D(res, trans);
     return ia_err_none;
   }
 
   // operation in place, save result in rpose
-  ia_err multipyPose_inplace(const Posed lpose, Posed rpose) { 
-    Posed tmp;
+  ia_err multipyPose_inplace(const POSE_D lpose, POSE_D rpose) { 
+    POSE_D tmp;
     multipyPose(lpose, rpose, tmp);
-    copy_Posed(tmp, rpose);
+    copy_POSE_D(tmp, rpose);
     return ia_err_none;
   }
 
 
 //   bool Triangulate_PBA_depth(const Mat34d &dT_12,
-//                              const Vec3d &v1,
-//                              const Vec3d &v2, double &depth) {
-//     const Vec3d &pa = dT_12.block<3, 1>(0, 3);
-//     const Vec3d &p = dT_12.block<3, 1>(0, 3);
-//     const Vec3d a = -pa;
-//     const Vec3d &dirMainWorld = v1;
-//     const Vec3d b = -p;
-//     Vec3d acrossn = a.cross(dirMainWorld);
+//                              const VEC_D_3 &v1,
+//                              const VEC_D_3 &v2, double &depth) {
+//     const VEC_D_3 &pa = dT_12.block<3, 1>(0, 3);
+//     const VEC_D_3 &p = dT_12.block<3, 1>(0, 3);
+//     const VEC_D_3 a = -pa;
+//     const VEC_D_3 &dirMainWorld = v1;
+//     const VEC_D_3 b = -p;
+//     VEC_D_3 acrossn = a.cross(dirMainWorld);
 //     float acrossnNorm = acrossn.norm();
 //     acrossn.normalize();
-//     Vec3d aProj2n = a.dot(dirMainWorld) * dirMainWorld;
-//     Vec3d A = acrossnNorm * dirMainWorld;
-//     Vec3d B = b - aProj2n;
-//     Vec3d h = A.cross(B);
+//     VEC_D_3 aProj2n = a.dot(dirMainWorld) * dirMainWorld;
+//     VEC_D_3 A = acrossnNorm * dirMainWorld;
+//     VEC_D_3 B = b - aProj2n;
+//     VEC_D_3 h = A.cross(B);
 //     h.normalize();
-//     Vec3d v = dT_12.block<3, 3>(0, 0) * v2;
-//     Vec3d vh = v.dot(h) * h;
-//     Vec3d vp = v - vh;
-//     Vec3d evp = Vec3d::Zero();
+//     VEC_D_3 v = dT_12.block<3, 3>(0, 0) * v2;
+//     VEC_D_3 vh = v.dot(h) * h;
+//     VEC_D_3 vp = v - vh;
+//     VEC_D_3 evp = VEC_D_3::Zero();
 //     Vec2d cstheta(1, 0);
 //     if (vp.dot(B) > 0) {
 //       evp = vp.normalized() - vp;
@@ -500,7 +590,7 @@
 //         cstheta[1] = 0;
 //       }
 //     }
-//     Vec3d error = vh + evp;
+//     VEC_D_3 error = vh + evp;
 
 //     float anorm = a.norm();
 //     float cosalpha = a.dot(v1) / anorm;
@@ -524,25 +614,25 @@
 //   }
 
 //   bool Triangulate_PBA_idepth(const Mat34d &dT_12,
-//                               const Vec3d &v1,
-//                               const Vec3d &v2, double &idepth) {
-//     const Vec3d &pa = dT_12.block<3, 1>(0, 3);
-//     const Vec3d &p = dT_12.block<3, 1>(0, 3);
-//     const Vec3d a = -pa;
-//     const Vec3d &dirMainWorld = v1;
-//     const Vec3d b = -p;
-//     Vec3d acrossn = a.cross(dirMainWorld);
+//                               const VEC_D_3 &v1,
+//                               const VEC_D_3 &v2, double &idepth) {
+//     const VEC_D_3 &pa = dT_12.block<3, 1>(0, 3);
+//     const VEC_D_3 &p = dT_12.block<3, 1>(0, 3);
+//     const VEC_D_3 a = -pa;
+//     const VEC_D_3 &dirMainWorld = v1;
+//     const VEC_D_3 b = -p;
+//     VEC_D_3 acrossn = a.cross(dirMainWorld);
 //     float acrossnNorm = acrossn.norm();
 //     acrossn.normalize();
-//     Vec3d aProj2n = a.dot(dirMainWorld) * dirMainWorld;
-//     Vec3d A = acrossnNorm * dirMainWorld;
-//     Vec3d B = b - aProj2n;
-//     Vec3d h = A.cross(B);
+//     VEC_D_3 aProj2n = a.dot(dirMainWorld) * dirMainWorld;
+//     VEC_D_3 A = acrossnNorm * dirMainWorld;
+//     VEC_D_3 B = b - aProj2n;
+//     VEC_D_3 h = A.cross(B);
 //     h.normalize();
-//     Vec3d v = dT_12.block<3, 3>(0, 0) * v2;
-//     Vec3d vh = v.dot(h) * h;
-//     Vec3d vp = v - vh;
-//     Vec3d evp = Vec3d::Zero();
+//     VEC_D_3 v = dT_12.block<3, 3>(0, 0) * v2;
+//     VEC_D_3 vh = v.dot(h) * h;
+//     VEC_D_3 vp = v - vh;
+//     VEC_D_3 evp = VEC_D_3::Zero();
 //     Vec2d cstheta(1, 0);
 //     if (vp.dot(B) > 0) {
 //       evp = vp.normalized() - vp;
@@ -571,7 +661,7 @@
 //         cstheta[1] = 0;
 //       }
 //     }
-//     Vec3d error = vh + evp;
+//     VEC_D_3 error = vh + evp;
 
 //     float anorm = a.norm();
 //     float cosalpha = a.dot(v1) / anorm;
@@ -595,32 +685,32 @@
 //     return true;
 //   }
 
-//   Vec3d ComputeEpipolarRes(const Mat34d &T1, const Mat34d &T2,
-//                            const Vec3d &v1, const Vec3d &v2) {
+//   VEC_D_3 ComputeEpipolarRes(const Mat34d &T1, const Mat34d &T2,
+//                            const VEC_D_3 &v1, const VEC_D_3 &v2) {
 //     const Mat3d &Rm = T1.block<3, 3>(0, 0);
-//     const Vec3d &pm = T1.block<3, 1>(0, 3);
-//     const Vec3d &pa = T2.block<3, 1>(0, 3);
-//     const Vec3d &p = T2.block<3, 1>(0, 3);
-//     const Vec3d a = pm - pa;
-//     const Vec3d dirMainWorld = Rm * v1;
+//     const VEC_D_3 &pm = T1.block<3, 1>(0, 3);
+//     const VEC_D_3 &pa = T2.block<3, 1>(0, 3);
+//     const VEC_D_3 &p = T2.block<3, 1>(0, 3);
+//     const VEC_D_3 a = pm - pa;
+//     const VEC_D_3 dirMainWorld = Rm * v1;
 //     if (a.norm() < 1e-5) {
-//       Vec3d error = T2.block<3, 3>(0, 0).transpose() * dirMainWorld - v2;
+//       VEC_D_3 error = T2.block<3, 3>(0, 0).transpose() * dirMainWorld - v2;
 //       return error;
 //     }
 
-//     const Vec3d b = pm - p;
-//     Vec3d acrossn = a.cross(dirMainWorld);
+//     const VEC_D_3 b = pm - p;
+//     VEC_D_3 acrossn = a.cross(dirMainWorld);
 //     float acrossnNorm = acrossn.norm();
 //     acrossn.normalize();
-//     Vec3d aProj2n = a.dot(dirMainWorld) * dirMainWorld;
-//     Vec3d A = acrossnNorm * dirMainWorld;
-//     Vec3d B = b - aProj2n;
-//     Vec3d h = A.cross(B);
+//     VEC_D_3 aProj2n = a.dot(dirMainWorld) * dirMainWorld;
+//     VEC_D_3 A = acrossnNorm * dirMainWorld;
+//     VEC_D_3 B = b - aProj2n;
+//     VEC_D_3 h = A.cross(B);
 //     h.normalize();
-//     Vec3d v = T2.block<3, 3>(0, 0) * v2;
-//     Vec3d vh = v.dot(h) * h;
-//     Vec3d vp = v - vh;
-//     Vec3d evp = Vec3d::Zero();
+//     VEC_D_3 v = T2.block<3, 3>(0, 0) * v2;
+//     VEC_D_3 vh = v.dot(h) * h;
+//     VEC_D_3 vp = v - vh;
+//     VEC_D_3 evp = VEC_D_3::Zero();
 //     if (vp.dot(B) > 0) {
 //       evp = vp.normalized() - vp;
 //     } else {
@@ -629,16 +719,16 @@
 //         evp = vp + A;
 //       else evp = vp - A;
 //     }
-//     Vec3d error = vh + evp;
+//     VEC_D_3 error = vh + evp;
 //     return error;
 //   }
 
 //   bool checkEpipolarConstraint(const Mat34d &dT_12,
-//                                const Vec3d &v1, const Vec3d &v2,
+//                                const VEC_D_3 &v1, const VEC_D_3 &v2,
 //                                double norm_th) {
 //     Mat34d T1 = Mat34d::Zero();
 //     T1.block<3, 3>(0, 0) = Eigen::Matrix<double, 3, 3, Eigen::RowMajor>::Identity();
-//     Vec3d Error = ComputeEpipolarRes(T1, dT_12, v1, v2);
+//     VEC_D_3 Error = ComputeEpipolarRes(T1, dT_12, v1, v2);
 
 //     if (Error.norm() < norm_th) {
 //       return true;
@@ -648,13 +738,13 @@
 //   }
 
 //   void
-//   calculate_RT_error(const Posed &_pose_cur_ref, const Posed &_guess_pose_cur_ref, float &_R_error,
+//   calculate_RT_error(const POSE_D &_pose_cur_ref, const POSE_D &_guess_pose_cur_ref, float &_R_error,
 //                      float &_T_error) {
 
 //     _T_error = (_guess_pose_cur_ref.block<3, 1>(0, 3) - _pose_cur_ref.block<3, 1>(0, 3)).norm();
 
 //     Mat3d dR = _pose_cur_ref.block<3, 3>(0, 0).transpose() * _guess_pose_cur_ref.block<3, 3>(0, 0);
-//     Vec3d dr = megCV::Log_SO3d(dR);
+//     VEC_D_3 dr = megCV::Log_SO3d(dR);
 //     _R_error = dr.norm() * 180 / 3.1415926;
 
 //     return;
@@ -662,7 +752,7 @@
 
 
 
-//   int optimize_se3(const std::vector<Vec3d> &_pts3d_ref, const std::vector<Vec2d> &_pts2d_cur,
+//   int optimize_se3(const std::vector<VEC_D_3> &_pts3d_ref, const std::vector<Vec2d> &_pts2d_cur,
 //                    const Mat3d &_K_cur, Mat34d &_Tcr, std::vector<uchar> &_inliers,
 //                    int _optimize_max_ites) {
 //     _inliers.assign(_pts3d_ref.size(), 0);
@@ -677,14 +767,14 @@
 
 //     for (int iter = 0; iter < iterations; iter++) {
 //       Eigen::Matrix<float_, 6, 6> H_GN = Eigen::Matrix<float_, 6, 6>::Zero();
-//       Vec6d b_GN = Vec6d::Zero();
+//       VEC_D_6 b_GN = VEC_D_6::Zero();
 
 //       cost = 0;
 
 //       for (size_t i = 0; i < _pts3d_ref.size(); i++) {
-//         const Vec3d &p3D = _pts3d_ref[i];
+//         const VEC_D_3 &p3D = _pts3d_ref[i];
 //         const Vec2d &p2D = _pts2d_cur[i];
-//         Vec3d pcd = megCV::transfromPoint(esti_T, p3D);
+//         VEC_D_3 pcd = megCV::transfromPoint(esti_T, p3D);
 //         Vec2d p2c = megCV::world2cam(pcd, _K_cur);
 //         //SEbox::Vec2d err = p2D - p2c;
 //         Vec2d err(p2D(0) - p2c(0), p2D(1) - p2c(1));
@@ -703,7 +793,7 @@
 //         b_GN += -J.transpose() * err;
 //       }
 
-//       Vec6d dx;
+//       VEC_D_6 dx;
 //       dx = H_GN.ldlt().solve(b_GN);
 
 //       if (std::isnan(dx[0])) {
@@ -713,7 +803,7 @@
 //       if (cost < 1e-6)
 //         break;
 
-//       Posed delta_T = Exp6d(dx);
+//       POSE_D delta_T = Exp6d(dx);
 //       esti_T = megCV::multipyPose(delta_T, esti_T);
 //     }
 
@@ -722,7 +812,7 @@
 //     int inliers_num = 0;
 
 //     for (size_t i = 0; i < _pts3d_ref.size(); i++) {
-//       const Vec3d &pt3d = _pts3d_ref[i];
+//       const VEC_D_3 &pt3d = _pts3d_ref[i];
 //       Vec2d pt2d_projected = megCV::world2cam(megCV::transfromPoint(_Tcr, pt3d), _K_cur);
 
 //       if (pt2d_projected != Vec2d::Zero()) {
@@ -747,16 +837,16 @@
 //   void getWarpMatrixAffine(const Mat3d &cam_ref,
 //                            const Mat3d &cam_cur,
 //                            const Vec2d &px_ref,
-//                            const Vec3d &f_ref,
+//                            const VEC_D_3 &f_ref,
 //                            const double depth_ref,
 //                            const Mat3d &R_cur_ref,
-//                            const Vec3d &T_cur_ref,
+//                            const VEC_D_3 &T_cur_ref,
 //                            const int level_ref,
 //                            const int halfpatch_size,
 //                            Mat2d &A_cur_ref) {
-//     const Vec3d xyz_ref(f_ref * depth_ref);
-//     Vec3d xyz_du_ref = cam2world(px_ref + Vec2d(halfpatch_size, 0) * (1 << level_ref), cam_ref.inverse());
-//     Vec3d xyz_dv_ref = cam2world(px_ref + Vec2d(0, halfpatch_size) * (1 << level_ref), cam_ref.inverse());
+//     const VEC_D_3 xyz_ref(f_ref * depth_ref);
+//     VEC_D_3 xyz_du_ref = cam2world(px_ref + Vec2d(halfpatch_size, 0) * (1 << level_ref), cam_ref.inverse());
+//     VEC_D_3 xyz_dv_ref = cam2world(px_ref + Vec2d(0, halfpatch_size) * (1 << level_ref), cam_ref.inverse());
 //     xyz_du_ref *= xyz_ref[2] / xyz_du_ref[2];
 //     xyz_dv_ref *= xyz_ref[2] / xyz_dv_ref[2];
 
@@ -770,12 +860,12 @@
 //   void getWarpMatrixAffine(const CamModel &cam_ref,
 //                            const CamModel &cam_cur,
 //                            const vPoint2f &pt2ds_ref,
-//                            const vVec3d &pt3ds_ref,
-//                            const Posed &T_cur_ref,
+//                            const vVEC_D_3 &pt3ds_ref,
+//                            const POSE_D &T_cur_ref,
 //                            const int halfpatch_size,
 //                            vMat2d &A_cur_ref) {
 //     vPoint2f pt_du_ref, pt_dv_ref, pt_du_cur, pt_dv_cur, pt_cur;
-//     vVec3d xyz_du_ref, xyz_dv_ref, xyz_cur;
+//     vVEC_D_3 xyz_du_ref, xyz_dv_ref, xyz_cur;
 //     pt_du_ref.assign(pt2ds_ref.begin(), pt2ds_ref.end());
 //     pt_dv_ref.assign(pt2ds_ref.begin(), pt2ds_ref.end());
 //     xyz_cur.resize(pt3ds_ref.size());
@@ -809,9 +899,9 @@
 //     }
 //   }
 
-//   void triangulate(const Posed &T_WC_1, const Posed &T_WC_2, const Vec3d &f1, const Vec3d &f2, Vec3d &pw) {
-//     Posed T_CW_1 = Posed::Zero();
-//     Posed T_CW_2 = Posed::Zero();
+//   void triangulate(const POSE_D &T_WC_1, const POSE_D &T_WC_2, const VEC_D_3 &f1, const VEC_D_3 &f2, VEC_D_3 &pw) {
+//     POSE_D T_CW_1 = POSE_D::Zero();
+//     POSE_D T_CW_2 = POSE_D::Zero();
 //     T_CW_1 = inversePose(T_WC_1);
 //     T_CW_2 = inversePose(T_WC_2);
 
@@ -828,7 +918,7 @@
 //     pw = pw / mySVD.matrixV()(3, 3);
 //   }
 
-//   void computeCs(const Posed &Rwc_m, const Vec3d &v1, const Posed &Rwc_a, const Vec3d &v2, Vec2d &cstheta) {
+//   void computeCs(const POSE_D &Rwc_m, const VEC_D_3 &v1, const POSE_D &Rwc_a, const VEC_D_3 &v2, Vec2d &cstheta) {
 //     cstheta = Vec2d::Zero();
 //     cstheta[0] = (Rwc_m.block<3, 3>(0, 0) * v1).dot(Rwc_a.block<3, 3>(0, 0) * v2);
 
@@ -996,9 +1086,9 @@
 //     }
 //   }
 
-//   Vec3d CamModel::cam2world(const cv::Point2f &px) const {
+//   VEC_D_3 CamModel::cam2world(const cv::Point2f &px) const {
 //     if (model == "RadiaTan") {
-//       Vec3d pt = Vec3d::Ones();
+//       VEC_D_3 pt = VEC_D_3::Ones();
 //       cv::Mat pxMat = cv::Mat::zeros(1, 1, CV_32FC2);
 //       cv::Mat pxUMat = cv::Mat::zeros(1, 1, CV_32FC2);
 //       pxMat.at<float>(0, 0) = px.x;
@@ -1011,7 +1101,7 @@
 //     }
 
 //     if (model == "Equi") {
-//       Vec3d pt = Vec3d::Ones();
+//       VEC_D_3 pt = VEC_D_3::Ones();
 //       cv::Mat dis_pt2d_ = cv::Mat::zeros(1, 1, CV_32FC2);
 //       dis_pt2d_.at<float>(0, 0) = px.x;
 //       dis_pt2d_.at<float>(0, 1) = px.y;
@@ -1030,22 +1120,22 @@
 //       float_ limit = 1.0 / (2.0 * alpha - 1.0);
 //       if (alpha > 0.5) {
 //         if (r2 > limit) {
-//           return Vec3d::Zero();
+//           return VEC_D_3::Zero();
 //         }
 //       }
 //       float_ mz = (1.0 - alpha * alpha * r2) /
 //                   (alpha * sqrt(1.0 - (alpha * 2.0 - 1.0) * r2) + 1.0 - alpha);
 
 //       float_ scale = (mz * xi + sqrt(mz * mz + (1.0 - xi * xi) * r2)) / (mz * mz + r2);
-//       Vec3d xyz = scale * Vec3d(mx, my, mz) - Vec3d(0, 0, xi);
+//       VEC_D_3 xyz = scale * VEC_D_3(mx, my, mz) - VEC_D_3(0, 0, xi);
 //       xyz.normalize();
 //       return xyz;
 //     }
 
-//     return Vec3d::Zero();
+//     return VEC_D_3::Zero();
 //   }
 
-//   cv::Point2f CamModel::world2cam(const Vec3d &pt, bool distort) const {
+//   cv::Point2f CamModel::world2cam(const VEC_D_3 &pt, bool distort) const {
 //     if (distort) {
 //       if (model == "RadiaTan") {
 //         cv::Point2f px;
@@ -1099,7 +1189,7 @@
 //         return pt2d;
 //       }
 //     } else {
-//       Vec3d pt2 = pt / pt(2);
+//       VEC_D_3 pt2 = pt / pt(2);
 //       cv::Point2f px;
 //       px.x = cvK.at<float>(0, 0) * pt2(0) + cvK.at<float>(0, 2);
 //       px.y = cvK.at<float>(1, 1) * pt2(1) + cvK.at<float>(1, 2);
@@ -1109,7 +1199,7 @@
 //     return cv::Point2f(0, 0);
 //   }
 
-//   void CamModel::world2cam(const vVec3d &pts3D, std::vector<cv::Point2f> &pts2D, bool distort) const {
+//   void CamModel::world2cam(const vVEC_D_3 &pts3D, std::vector<cv::Point2f> &pts2D, bool distort) const {
 //     if (pts3D.empty())
 //       return;
 
@@ -1144,7 +1234,7 @@
 //         float_ w2 = (w1 + xi) / sqrt(2.0 * w1 * xi + xi * xi + 1.0);
 //         pts2D.clear();
 //         for (size_t i = 0; i < pts3D.size(); ++i) {
-//           const Vec3d &pt = pts3D[i];
+//           const VEC_D_3 &pt = pts3D[i];
 //           float_ d1 = pt.norm();
 //           float_ d2 = sqrt(pt[0] * pt[0] + pt[1] * pt[1] +
 //                            (xi * d1 + pt[2]) * (xi * d1 + pt[2]));
@@ -1168,7 +1258,7 @@
 //     }
 //   }
 
-//   void CamModel::cam2world(const std::vector<cv::Point2f> &pts2D, vVec3d &pts3D) const {
+//   void CamModel::cam2world(const std::vector<cv::Point2f> &pts2D, vVEC_D_3 &pts3D) const {
 //     if (pts2D.empty())
 //       return;
 
@@ -1217,7 +1307,7 @@
 //         float_ limit = 1.0 / (2.0 * alpha - 1.0);
 //         if (alpha > 0.5) {
 //           if (r2 > limit) {
-//             pts3D[i] = Vec3d::Zero();
+//             pts3D[i] = VEC_D_3::Zero();
 //           }
 //         }
 
@@ -1225,7 +1315,7 @@
 //                     (alpha * sqrt(1.0 - (alpha * 2.0 - 1.0) * r2) + 1.0 - alpha);
 
 //         float_ scale = (mz * xi + sqrt(mz * mz + (1.0 - xi * xi) * r2)) / (mz * mz + r2);
-//         pts3D[i] = scale * Vec3d(mx, my, mz) - Vec3d(0, 0, xi);
+//         pts3D[i] = scale * VEC_D_3(mx, my, mz) - VEC_D_3(0, 0, xi);
 //         pts3D[i].normalize();
 //       }
 //     }
