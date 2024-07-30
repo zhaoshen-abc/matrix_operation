@@ -78,6 +78,8 @@
         "valarray": "cpp",
         "variant": "cpp",
         "bit": "cpp",
-        "geometry.h": "c"
-    }
+        "geometry.h": "c",
+        "stdint.h": "c"
+    },
+    "ros.distro": "noetic"
 }
