@@ -1,13 +1,20 @@
 #ifndef _SOLVER_H
 #define _SOLVER_H
 
-#include "ia_abstraction.h"
-#include "ac_auxiliary.h"
 #include "macro.h"
-
+#include <stdint.h>
+#include <stdbool.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct
+{
+    double *data;       /*!< data of matrix*/
+    uint32_t m;         /*!< number of row*/
+    uint32_t n;         /*!< number of col*/
+    uint32_t s;         /*!< number of stride*/
+} matrix_double_t;
 
 /*!
  *  \brief n x n dialog matrix.
@@ -117,31 +124,31 @@ void unit_diag_triangular_print_d(unit_diag_triangular_double_t* mat);
 
 void diagonal_mat_print_d(diagonal_double_t* mat);
 
-ia_err symmetric_2_matrix(symmetric_double_t* A, ac_matrix_double_t* mat);
+uint32_t symmetric_2_matrix(symmetric_double_t* A, matrix_double_t* mat);
 
-ia_err upper_triangular_2_matrix(upper_triangular_double_t* A, ac_matrix_double_t* mat);
+uint32_t upper_triangular_2_matrix(upper_triangular_double_t* A, matrix_double_t* mat);
 
-ia_err unit_diag_triangular_2_matrix(unit_diag_triangular_double_t* A, ac_matrix_double_t* mat);
+uint32_t unit_diag_triangular_2_matrix(unit_diag_triangular_double_t* A, matrix_double_t* mat);
 
-ia_err diagonal_2_matrix(diagonal_double_t* A, ac_matrix_double_t* mat);
+uint32_t diagonal_2_matrix(diagonal_double_t* A, matrix_double_t* mat);
 
 // float* symmat2vector_N(const ac_matrix_f32_t* matrix);
 
-// double* symmat2vector_N_D(const ac_matrix_double_t* matrix, int N);
+// double* symmat2vector_N_D(const matrix_double_t* matrix, int N);
 
 // copy from https://blog.csdn.net/YU_Xianguo/article/details/84665547
 // int RtDRdecomp(float *A, int N);
 
 int RtDRdecomp_D(double *A, int N);
-// ia_err RtDRdecomp_D(upper_triangular_double_t* A);
+// uint32_t RtDRdecomp_D(upper_triangular_double_t* A);
 
 bool isOrthogonal(symmetric_double_t A);
 
-ia_err Symmetric_RtDRdecomp(const symmetric_double_t* A, unit_diag_triangular_double_t* R, diagonal_double_t* D);
+uint32_t Symmetric_RtDRdecomp(const symmetric_double_t* A, unit_diag_triangular_double_t* R, diagonal_double_t* D);
 
-ia_err SVD_decompositon(const ac_matrix_double_t A, symmetric_double_t U, diagonal_double_t sigma, symmetric_double_t V);
+uint32_t SVD_decompositon(const matrix_double_t A, symmetric_double_t U, diagonal_double_t sigma, symmetric_double_t V);
 
-ia_err LU_decompositon(const ac_matrix_double_t A, upper_triangular_double_t L, lower_triangular_double_t U);
+uint32_t LU_decompositon(const matrix_double_t A, upper_triangular_double_t L, lower_triangular_double_t U);
 
 // ex:
 // H = {a1, a2, a3,

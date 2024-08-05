@@ -2,9 +2,8 @@
 #define _GEOMETRY_H
 
 #include <math.h>
-#include "ia_abstraction.h"
-#include "ac_auxiliary.h"
 #include "macro.h"
+#include "stdint.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,57 +24,57 @@ extern "C" {
 
   void ac_POSE_D_print(const POSE_D mat);
 
-  ia_err copy_VEC_D_3(const VEC_D_3 v_in, VEC_D_3 v_out);
+  uint32_t copy_VEC_D_3(const VEC_D_3 v_in, VEC_D_3 v_out);
 
-  ia_err copy_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
+  uint32_t copy_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
 
-  ia_err transpose_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
+  uint32_t transpose_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
 
-  ia_err transpose_Mat33d_inplace(MAT_D_3_3 mat);
+  uint32_t transpose_Mat33d_inplace(MAT_D_3_3 mat);
 
-  ia_err set_Identity_POSE_D(POSE_D pose);
+  uint32_t set_Identity_POSE_D(POSE_D pose);
 
-  ia_err set_Translate_POSE_D(POSE_D pose, const VEC_D_3 trans);
+  uint32_t set_Translate_POSE_D(POSE_D pose, const VEC_D_3 trans);
 
-  ia_err set_Rotation_POSE_D(POSE_D pose, const MAT_D_3_3 rotation);
+  uint32_t set_Rotation_POSE_D(POSE_D pose, const MAT_D_3_3 rotation);
 
-  ia_err Pose_Translate_part(const POSE_D pose, VEC_D_3 trans);
+  uint32_t Pose_Translate_part(const POSE_D pose, VEC_D_3 trans);
 
-  ia_err Pose_Rotation_part(const POSE_D pose, MAT_D_3_3 rotation);
+  uint32_t Pose_Rotation_part(const POSE_D pose, MAT_D_3_3 rotation);
 
-  ia_err set_Identity_Mat33d(MAT_D_3_3 mat);
+  uint32_t set_Identity_Mat33d(MAT_D_3_3 mat);
 
-  ia_err Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const VEC_D_3 v, VEC_D_3 res);
+  uint32_t Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const VEC_D_3 v, VEC_D_3 res);
 
-  ia_err Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, VEC_D_3 v);
+  uint32_t Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, VEC_D_3 v);
 
-  ia_err MAT33D_times(const MAT_D_3_3 mat, double num, MAT_D_3_3 res);
+  uint32_t MAT33D_times(const MAT_D_3_3 mat, double num, MAT_D_3_3 res);
 
-  ia_err MAT33D_times_inplace(MAT_D_3_3 mat, double num);
+  uint32_t MAT33D_times_inplace(MAT_D_3_3 mat, double num);
 
-  ia_err MAT33D_matrix_operation(const MAT_D_3_3 factor1, const MAT_D_3_3 factor2, char oper, MAT_D_3_3 res);
+  uint32_t MAT33D_matrix_operation(const MAT_D_3_3 factor1, const MAT_D_3_3 factor2, char oper, MAT_D_3_3 res);
 
-  ia_err MAT33D_matrix_operation_inplace(const MAT_D_3_3 factor1, MAT_D_3_3 factor2, char oper);
+  uint32_t MAT33D_matrix_operation_inplace(const MAT_D_3_3 factor1, MAT_D_3_3 factor2, char oper);
 
-  ia_err skewd(const VEC_D_3 v, MAT_D_3_3 mat);
+  uint32_t skewd(const VEC_D_3 v, MAT_D_3_3 mat);
 
   double norm_V3d(const VEC_D_3 v);
 
-  ia_err Log_SO3d(const MAT_D_3_3 R, VEC_D_3 v);
+  uint32_t Log_SO3d(const MAT_D_3_3 R, VEC_D_3 v);
 
-  ia_err Exp3d(const VEC_D_3 _dx, MAT_D_3_3 R);
+  uint32_t Exp3d(const VEC_D_3 _dx, MAT_D_3_3 R);
 
-  ia_err Exp6d(const VEC_D_6 _dx, POSE_D T);
+  uint32_t Exp6d(const VEC_D_6 _dx, POSE_D T);
   
-  ia_err mat2qua(const MAT_D_3_3 m, Quaternion_D qua);
+  uint32_t mat2qua(const MAT_D_3_3 m, Quaternion_D qua);
 
-  ia_err inversePose(const POSE_D pose_in, POSE_D pose_out);
+  uint32_t inversePose(const POSE_D pose_in, POSE_D pose_out);
   
-  ia_err inversePose_inplace(POSE_D pose);
+  uint32_t inversePose_inplace(POSE_D pose);
 
-  ia_err multipyPose(const POSE_D lpose, const POSE_D rpose, POSE_D res);
+  uint32_t multipyPose(const POSE_D lpose, const POSE_D rpose, POSE_D res);
 
-  ia_err multipyPose_inplace(const POSE_D lpose, POSE_D rpose);
+  uint32_t multipyPose_inplace(const POSE_D lpose, POSE_D rpose);
 
   // inline Vec2d world2cam(const VEC_D_3 &xyz_c, const Mat3d &K) {
   //   Vec2d p = xyz_c.head<2>() / xyz_c(2);

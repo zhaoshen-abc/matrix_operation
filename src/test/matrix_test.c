@@ -111,15 +111,15 @@ int main() {
     double A_mat_data[N*N];
     double R_mat_data[N*N];
     double D_mat_data[N*N];
-    ac_matrix_double_t A_mat = {A_mat_data, N, N};
-    ac_matrix_double_t R_mat = {R_mat_data, N, N};
-    ac_matrix_double_t D_mat = {D_mat_data, N, N};
+    matrix_double_t A_mat = {A_mat_data, N, N};
+    matrix_double_t R_mat = {R_mat_data, N, N};
+    matrix_double_t D_mat = {D_mat_data, N, N};
     symmetric_2_matrix(&A, &A_mat);
     unit_diag_triangular_2_matrix(&R, &R_mat);
     diagonal_2_matrix(&D, &D_mat);
 
     // double res_mat_data[N*N];
-    // ac_matrix_double_t res_mat = {res_mat_data, N, N};
+    // matrix_double_t res_mat = {res_mat_data, N, N};
     // matrix_matrix_operation_d(R_mat, D_mat, '*', res_mat);
     // puts("product : ");
     // ac_mat_print_d(&res_mat, N, N);

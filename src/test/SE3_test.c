@@ -1,124 +1,124 @@
 #include <math.h>
-// #include <stdlib.h>
-
+#include <stdio.h>
 #include "macro.h"
-#include "ia_abstraction.h"
-#include "ac_auxiliary.h"
 #include "geometry.h"
-// #define LOG_AC
-// #define _DEBUG
+
+void vector3_print_d(const VEC_D_3 vec)
+{
+    printf("%f, %f, %f\n", vec[0], vec[1], vec[2]);
+};
 
 int main() {
     MAT_D_3_3 mat = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-    puts("origin Mat33D:");
+    printf("origin Mat33D:\n");
     ac_MAT_D_3_3_print(mat);
 
     MAT_D_3_3 trans_mat;
-    puts("transpose:");
+    printf("transpose:\n");
     transpose_Mat33d(mat, trans_mat);
     ac_MAT_D_3_3_print(trans_mat);
-    puts("transpose inplace:");
+    printf("transpose inplace:\n");
     transpose_Mat33d_inplace(mat);
     ac_MAT_D_3_3_print(mat);
 
     MAT_D_3_3 res1;
+    printf("x 1.5:\n");
     MAT33D_times(mat, 1.5, res1);
     ac_MAT_D_3_3_print(res1);
-    puts("Matrix times 1.5 inplace:");
+    printf("Matrix times 1.5 inplace:\n");
     MAT33D_times_inplace(mat, 1.5);
     ac_MAT_D_3_3_print(mat);
 
     
     VEC_D_3 v1 = {1, 2, 3}, v2;
-    puts("vec3d:");
-    ac_vector3_print_d(v1);
-    puts("Matrix multiply vec3d:");
+    printf("vec3d:\n");
+    vector3_print_d(v1);
+    printf("Matrix multiply vec3d:\n");
     Mat33D_Vec3D_multiply(mat, v1, v2);
-    ac_vector3_print_d(v2);
-    puts("Matrix multiply vec3d inplace:");
+    vector3_print_d(v2);
+    printf("Matrix multiply vec3d inplace:\n");
     Mat33D_Vec3D_multiply_inplace(mat, v1);
-    ac_vector3_print_d(v1);
+    vector3_print_d(v1);
 
-    puts("Matrix operation:");
+    printf("Matrix operation:\n");
     MAT_D_3_3 mat1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     MAT_D_3_3 mat2 = {4, 5, 6, 1, 2, 3, 4, 5, 6};
-    puts("mat1:");
+    printf("mat1:\n");
     ac_MAT_D_3_3_print(mat1);
-    puts("mat2:");
+    printf("mat2:\n");
     ac_MAT_D_3_3_print(mat2);
 
     MAT_D_3_3 res2;
     MAT_D_3_3 res2_inplace;
 
-    puts("+ :");
+    printf("+ :\n");
     MAT33D_matrix_operation(mat1, mat2, '+', res2);
     ac_MAT_D_3_3_print(res2);
-    puts("+ inplace:");
+    printf("+ inplace:\n");
     copy_Mat33d(mat2, res2_inplace);
     MAT33D_matrix_operation_inplace(mat1, res2_inplace, '+');
     ac_MAT_D_3_3_print(res2_inplace);
 
-    puts("- :");
+    printf("- :\n");
     MAT33D_matrix_operation(mat1, mat2, '-', res2);
     ac_MAT_D_3_3_print(res2);
-    puts("- inplace:");
+    printf("- inplace:\n");
     copy_Mat33d(mat2, res2_inplace);
     MAT33D_matrix_operation_inplace(mat1, res2_inplace, '-');
     ac_MAT_D_3_3_print(res2_inplace);
 
-    puts("* :");
+    printf("* :\n");
     MAT33D_matrix_operation(mat1, mat2, '*', res2);
     ac_MAT_D_3_3_print(res2);
-    puts("* inplace:");
+    printf("* inplace:\n");
     copy_Mat33d(mat2, res2_inplace);
     MAT33D_matrix_operation_inplace(mat1, res2_inplace, '*');
     ac_MAT_D_3_3_print(res2_inplace);
 
-    puts(". :");
+    printf(". :\n");
     MAT33D_matrix_operation(mat1, mat2, '.', res2);
     ac_MAT_D_3_3_print(res2);
-    puts(". inplace:");
+    printf(". inplace:\n");
     copy_Mat33d(mat2, res2_inplace);
     MAT33D_matrix_operation_inplace(mat1, res2_inplace, '.');
     ac_MAT_D_3_3_print(res2_inplace);
 
-    puts("/ :");
+    printf("/ :\n");
     MAT33D_matrix_operation(mat1, mat2, '/', res2);
     ac_MAT_D_3_3_print(res2);
-    puts("/ inplace:");
+    printf("/ inplace:\n");
     copy_Mat33d(mat2, res2_inplace);
     MAT33D_matrix_operation_inplace(mat1, res2_inplace, '/');
     ac_MAT_D_3_3_print(res2_inplace);
 
-    puts("vec:");
-    ac_vector3_print_d(v1);
-    puts("vec skewd:");
+    printf("vec:\n");
+    vector3_print_d(v1);
+    printf("vec skewd:\n");
     MAT_D_3_3 v1_skewed;
     skewd(v1, v1_skewed);
     ac_MAT_D_3_3_print(v1_skewed);
-    puts("vec norm:");
+    printf("vec norm:\n");
     printf("%f \n", norm_V3d(v1));
 
 
-    puts("Identity Pose:");
+    printf("Identity Pose:\n");
     POSE_D identity_mat;
     set_Identity_POSE_D(identity_mat);
     ac_POSE_D_print(identity_mat);
 
-    puts("Rotation Matrix :");
+    printf("Rotation Matrix :\n");
     MAT_D_3_3 R = {1, 0, 0,
                    0, 1, 0, 
                    0, 0, 1};
     ac_MAT_D_3_3_print(R);
-    puts("Rotation Vector :");
+    printf("Rotation Vector :\n");
     VEC_D_3 v_so3;
     Log_SO3d(R, v_so3);
-    ac_vector3_print_d(v_so3);
+    vector3_print_d(v_so3);
     // MAT_D_3_3 R_so3;
     // Exp6d(v_so3, v_so3);
-    // ac_vector3_print_d(v_so3);
-
+    // vector3_print_d(v_so3);
 
 
     // ia_err Exp6d(const VEC_D_6 _dx, POSE_D pose);

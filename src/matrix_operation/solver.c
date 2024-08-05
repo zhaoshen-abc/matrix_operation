@@ -1,14 +1,14 @@
 #include "solver.h"
-
+#include <stdlib.h>
 #define MAX_COL 20U
 
-// ia_err symm2mat(symmetric_double_t* symm, ac_matrix_double_t* mat)
+// uint32_t symm2mat(symmetric_double_t* symm, matrix_double_t* mat)
 // {
 //     if (A == NULL || R == NULL || D == NULL ||
 //         A->data == NULL || R->data == NULL || D->data == NULL ||
 //         A->n != R->n || R->n != D->n)
 //     {
-//         return ia_err_argument;
+//         return uint32_t_argument;
 //     }
 
 //     uint32_t col = mat->n;
@@ -32,7 +32,7 @@
 //             ptr += size;
 //         }
 //         k ++ ;
-//         AC_LOG("%s", buf);
+//         printf("%s", buf);
 //     }
 // }
 
@@ -59,11 +59,11 @@ void symmetric_print_d(symmetric_double_t* A) {
             int size = sprintf(ptr, "%f, ", data);
             ptr += size;
         }
-        AC_LOG("%s", buf);
+        printf("%s\n", buf);
     }
 }
 
-ia_err symmetric_2_matrix(symmetric_double_t* A, ac_matrix_double_t* mat) {
+uint32_t symmetric_2_matrix(symmetric_double_t* A, matrix_double_t* mat) {
     if (A == NULL || A->data == NULL || mat == NULL || mat->data == NULL)
     {
         return;
@@ -108,11 +108,11 @@ void upper_triangular_print_d(upper_triangular_double_t* A) {
             int size = sprintf(ptr, "%f, ", data);
             ptr += size;
         }
-        AC_LOG("%s", buf);
+        printf("%s\n", buf);
     }
 }
 
-ia_err upper_triangular_2_matrix(upper_triangular_double_t* A, ac_matrix_double_t* mat) {
+uint32_t upper_triangular_2_matrix(upper_triangular_double_t* A, matrix_double_t* mat) {
     if (A == NULL || A->data == NULL || mat == NULL || mat->data == NULL)
     {
         return;
@@ -157,7 +157,7 @@ void zero_diag_triangular_print_d(zero_diag_triangular_double_t* A) {
             int size = sprintf(ptr, "%f, ", data);
             ptr += size;
         }
-        AC_LOG("%s", buf);
+        printf("%s\n", buf);
     }
 }
 
@@ -187,11 +187,11 @@ void unit_diag_triangular_print_d(unit_diag_triangular_double_t* A) {
             int size = sprintf(ptr, "%f, ", data);
             ptr += size;
         }
-        AC_LOG("%s", buf);
+        printf("%s\n", buf);
     }
 }
 
-ia_err unit_diag_triangular_2_matrix(unit_diag_triangular_double_t* A, ac_matrix_double_t* mat) {
+uint32_t unit_diag_triangular_2_matrix(unit_diag_triangular_double_t* A, matrix_double_t* mat) {
     if (A == NULL || A->data == NULL || mat == NULL || mat->data == NULL)
     {
         return;
@@ -234,10 +234,10 @@ void diagonal_mat_print_d(diagonal_double_t* A) {
         int size = sprintf(ptr, "%f, ", data);
         ptr += size;
     }
-    AC_LOG("%s", buf);
+    printf("%s\n", buf);
 }
 
-ia_err diagonal_2_matrix(diagonal_double_t* A, ac_matrix_double_t* mat) {
+uint32_t diagonal_2_matrix(diagonal_double_t* A, matrix_double_t* mat) {
     if (A == NULL || A->data == NULL || mat == NULL || mat->data == NULL)
     {
         return;
@@ -256,7 +256,7 @@ double* symmetric_index(symmetric_double_t* A, int x, int y) {
     if (A == NULL || A->data == NULL ||
         A->n <= x || A->n <= y || x > y)
     {
-        AC_LOG("argument fault");
+        printf("argument fault\n");
         return NULL;
     }
     int offset = (2*A->n-x)*(x+1)/2 - (A->n-y);
@@ -267,7 +267,7 @@ double* upper_triangular_index(upper_triangular_double_t* A, int x, int y) {
     if (A == NULL || A->data == NULL ||
         A->n <= x || A->n <= y || x > y)
     {
-        AC_LOG("argument fault");
+        printf("argument fault\n");
         return NULL;
     }
     int offset = (2*A->n-x)*(x+1)/2 - (A->n-y);
@@ -278,7 +278,7 @@ double* zero_diag_triangular_index(zero_diag_triangular_double_t* A, int x, int 
     if (A == NULL || A->data == NULL ||
         A->n <= x || A->n <= y || x >= y)
     {
-        AC_LOG("argument fault");
+        printf("argument fault\n");
         return NULL;
     }
     int offset = (2*A->n-x)*(x+1)/2 - (A->n-y) - x - 1;
@@ -289,7 +289,7 @@ double* unit_diag_triangular_index(unit_diag_triangular_double_t* A, int x, int 
     if (A == NULL || A->data == NULL ||
         A->n <= x || A->n <= y || x >= y)
     {
-        AC_LOG("argument fault");
+        printf("argument fault\n");
         return NULL;
     }
     int offset = (2*A->n-x)*(x+1)/2 - (A->n-y) - x - 1;
@@ -318,12 +318,12 @@ int RtDRdecomp_D(double *A, int N) {
     return 1;
 }
 
-ia_err Symmetric_RtDRdecomp(const symmetric_double_t* A, unit_diag_triangular_double_t* R, diagonal_double_t* D) {
+uint32_t Symmetric_RtDRdecomp(const symmetric_double_t* A, unit_diag_triangular_double_t* R, diagonal_double_t* D) {
     if (A == NULL || R == NULL || D == NULL ||
         A->data == NULL || R->data == NULL || D->data == NULL ||
         A->n != R->n || R->n != D->n)
     {
-        return ia_err_argument;
+        return 1;
     }
 
     uint32_t N = A->n;
@@ -340,7 +340,7 @@ ia_err Symmetric_RtDRdecomp(const symmetric_double_t* A, unit_diag_triangular_do
     }
 
     if(!RtDRdecomp_D(tmp_data, N)) 
-		return ia_err_data;
+		return 1;
 	
     for (uint32_t i = 0; i < N; i ++ ) {
         for (uint32_t j = i; j < N; j ++ ) {
@@ -353,9 +353,9 @@ ia_err Symmetric_RtDRdecomp(const symmetric_double_t* A, unit_diag_triangular_do
             }
         }
     }
-    puts("D :");
+    printf("D :\n");
     diagonal_mat_print_d(D);
-    puts("R :");
+    printf("R :\n");
     unit_diag_triangular_print_d(A);
 }
 
