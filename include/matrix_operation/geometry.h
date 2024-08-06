@@ -11,14 +11,94 @@ extern "C" {
   typedef double MAT_D_3_3[3][3];
   typedef double POSE_D[3][4];
   typedef double VEC_D_3[3];
+  typedef double VEC_D_4[3];
   typedef double VEC_D_6[6]; // [x y z rx ry rz]
   typedef double Quaternion_D[4];
 
-  // using vMat2d = aligned_vector<Mat2d>;
+  typedef struct MAT_DYNAMIC_D {
+    double** p;
+    uint32_t rows;
+    uint32_t cols;
+  } MAT_DYNAMIC_D;
 
-  // using vPoint2f = std::vector<cv::Point2f>;
+  typedef struct SVD_DYNAMIC_D {
+    MAT_DYNAMIC_D U;
+    MAT_DYNAMIC_D D;
+    MAT_DYNAMIC_D V;
+  } SVD_DYNAMIC_D;
 
-  // const POSE_D &Identity34d();
+  void NEW_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, uint32_t rows, uint32_t cols);
+  void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
+  void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
+
+  // compute SVD decomposition for mat, saved in svd
+  // mat = U*D*V^T
+  void SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, SVD_DYNAMIC_D* svd);
+
+  // solve linear equation Ax=b
+  void SOLVE_A_x_b_MAT_by_colPivHouseholderQr_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x);
+  // x = A.colPivHouseholderQr().solve(b)
+  void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x);
+  // Solver
+  // x = A.SVD().solve(b)
+
+
+  /*---------------New Add function-------------------*/
+  // v = [0, 0, 0]^T
+  void SET_ZERO_VEC_D_3(VEC_D_3 v);
+
+  // v = v * n
+  void MULTIPLY_SCALE_VEC_D_3(VEC_D_3 v, double n);
+
+  // m = v * v^T
+  void AAT_VEC_D_3(VEC_D_3 v, MAT_D_3_3 m);
+
+  // m = U*D*V^T
+  void SVD_MAT_D_3_3(MAT_D_3_3 m, MAT_D_3_3 U, VEC_D_3 V, MAT_D_3_3 D);
+
+  // m = m^T inplace
+  void TRANSPOSE_MAT_D_3_3(MAT_D_3_3 m);
+
+  // return rank of m
+  int RANK_MAT_D_3_3(MAT_D_3_3 m);
+
+  // inv_m = m^-1
+  void INVERSE_MAT_D_3_3(MAT_D_3_3 m, MAT_D_3_3 inv_m);
+
+  // return v1^T * v2
+  double DOT_PRODUCT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2);
+
+  // return v1 - v2
+  double** SUBTRACT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2);
+
+  // return || p ||^2
+  double squaredNorm_VEC_D_3(VEC_D_3 p);
+
+  // m = [0, 0, 0; 0, 0, 0; 0, 0, 0;];
+  void SET_ZERO_MAT_D_3_3(MAT_D_3_3 m);
+
+  // return |m|
+  double determinant_MAT_D_3_3(MAT_D_3_3 m);
+
+  // m_out = m_in
+  void EQU_MAT_D_3_3(MAT_D_3_3 m_in, MAT_D_3_3 m_out);
+
+  /*-------------New Add function End-----------------*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   void ac_MAT_D_3_3_print(const MAT_D_3_3 mat);
 
