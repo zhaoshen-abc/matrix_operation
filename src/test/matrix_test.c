@@ -1,8 +1,6 @@
 #include <stdlib.h>
 
 #include "macro.h"
-#include "ia_abstraction.h"
-#include "ac_auxiliary.h"
 #include "solver.h"
 // #define LOG_AC
 // #define _DEBUG

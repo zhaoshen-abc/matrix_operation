@@ -79,7 +79,9 @@
         "variant": "cpp",
         "bit": "cpp",
         "geometry.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "eigen": "cpp",
+        "core": "cpp"
     },
     "ros.distro": "noetic"
 }

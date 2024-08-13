@@ -1,6 +1,13 @@
 #include "geometry.h"
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "svd3.h"
+#include "stdio.h"
+#include <cstring>
+#include "svd.h"
+
   void ac_MAT_D_3_3_print(const MAT_D_3_3 mat) {
     uint32_t i = 0U;
     for (i = 0U; i < 3U; i++)
@@ -1385,3 +1392,186 @@
 //       _intrinsic.push_back((double) alpha);
 //     }
 //   }
+
+void NEW_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, const uint32_t rows, const uint32_t cols) {
+  mat->rows = rows;
+  mat->cols = cols;
+  mat->p = (double**)calloc(rows * sizeof(double*), 0);
+  for (uint32_t i = 0; i < rows; ++i) {
+    mat->p[i] = (double*)calloc(cols * sizeof(double), 0);
+  }
+}
+
+void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat) {
+  for (uint32_t i = 0; i < mat->rows; ++i) {
+    free(mat->p[i]);
+  }
+  free(mat->p);
+  mat->p = NULL;
+  mat->rows = 0;
+  mat->cols = 0;
+}
+
+void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat) {
+  for (uint32_t i = 0; i < mat->rows; ++i) {
+    for (uint32_t j = 0; j < mat->cols; ++j) {
+      mat->p[i][j] = 0.0;
+    }
+  }
+}
+
+void SVD_MAT_D_3_3(MAT_D_3_3 m, MAT_D_3_3 U, MAT_D_3_3 V, MAT_D_3_3 D)
+{
+    float a11, a12, a13, a21, a22, a23, a31, a32, a33;
+
+    a11= m[0][0]; a12 = m[0][1]; a13 = m[0][2];
+    a21= m[1][0]; a22 = m[1][1]; a23 = m[1][2];
+    a31= m[2][0]; a32 = m[2][1]; a33 = m[2][2];
+
+    // printf("Original Matrix:\n");
+    // printMat3(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+
+    float u11, u12, u13, u21, u22, u23, u31, u32, u33;
+    float s11, s12, s13, s21, s22, s23, s31, s32, s33;
+    float v11, v12, v13, v21, v22, v23, v31, v32, v33;
+
+    for (int i=0; i<1e6; i++)
+    {
+        svd(a11, a12, a13, a21, a22, a23, a31, a32, a33,
+        u11, u12, u13, u21, u22, u23, u31, u32, u33,
+        s11, s12, s13, s21, s22, s23, s31, s32, s33,
+        v11, v12, v13, v21, v22, v23, v31, v32, v33);
+    }    
+
+    U[0][0] = u11; U[0][1] = u12; U[0][2] = u13;
+    U[1][0] = u21; U[1][1] = u22; U[1][2] = u23; 
+    U[2][0] = u31; U[2][1] = u32; U[2][2] = u33; 
+
+    D[0][0] = s11; D[0][1] = s12; D[0][2] = s13;
+    D[1][0] = s21; D[1][1] = s22; D[1][2] = s23; 
+    D[2][0] = s31; D[2][1] = s32; D[2][2] = s33; 
+
+    V[0][0] = v11; V[0][1] = v12; V[0][2] = v13;
+    V[1][0] = v21; V[1][1] = v22; V[1][2] = v23; 
+    V[2][0] = v31; V[2][1] = v32; V[2][2] = v33; 
+
+}
+
+// Naive SVD implementation (for educational purposes only)
+void SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, SVD_DYNAMIC_D* svd) {
+  assert(svd->U.rows == mat->rows && svd->U.cols == mat->cols);
+  assert(svd->D.rows == mat->rows && svd->D.cols == mat->rows);
+
+  MatDoub A_T(mat->cols, mat->rows);
+  for (uint32_t i = 0; i < mat->cols; i ++ )
+  {
+    for (uint32_t j = 0; j < mat->rows; j ++ )
+    {
+      A_T[i][j] = mat->p[j][i];
+    }
+  }
+  SVD sv(A_T);
+
+  for (uint32_t i = 0; i < svd->U.rows; i ++ )
+  {
+    for (uint32_t j = 0; j < svd->U.cols; j ++ )
+    {
+      svd->U.p[i][j] = sv.v[i][j];
+    }
+  }
+  for (uint32_t i = 0; i < svd->D.rows; i ++ )
+  {
+    for (uint32_t j = 0; j < svd->D.cols; j ++ )
+    {
+      svd->D.p[i][j] = i == j ? sv.w[i] : 0.0;
+    }
+  }
+}
+
+// Copy matrix data from src to dest
+void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest) {
+  for (uint32_t i = 0; i < src->rows; ++i) {
+    for (uint32_t j = 0; j < src->cols; ++j) {
+      dest->p[i][j] = src->p[i][j];
+    }
+  }
+}
+
+// Solve a system of linear equations Ax = b using Gaussian elimination with partial pivoting.
+// A is an n-by-n matrix, b is an n-by-1 matrix (column vector), and x is the solution vector.
+// This function modifies the input matrices A and b.
+void SOLVE_A_x_b_GaussianElimination(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x) {
+  uint32_t n = A->rows;
+  for (uint32_t i = 0; i < n; ++i) {
+    // Partial pivoting
+    double max = abs(A->p[i][i]);
+    uint32_t maxRow = i;
+    for (uint32_t k = i + 1; k < n; ++k) {
+      if (abs(A->p[k][i]) > max) {
+        max = abs(A->p[k][i]);
+        maxRow = k;
+      }
+    }
+    // Swap rows
+    for (uint32_t k = i; k < n; ++k) {
+      double tmp = A->p[maxRow][k];
+      A->p[maxRow][k] = A->p[i][k];
+      A->p[i][k] = tmp;
+    }
+    double tmp = b->p[maxRow][0];
+    b->p[maxRow][0] = b->p[i][0];
+    b->p[i][0] = tmp;
+
+    // Eliminate column below pivot
+    for (uint32_t k = i + 1; k < n; ++k) {
+      double c = -A->p[k][i] / A->p[i][i];
+      for (uint32_t j = i; j < n; ++j) {
+        if (i == j) {
+          A->p[k][j] = 0;
+        } else {
+          A->p[k][j] += c * A->p[i][j];
+        }
+      }
+      b->p[k][0] += c * b->p[i][0];
+    }
+  }
+
+  // Solve for solution vector x
+  NEW_MAT_DYNAMIC_D(x, n, 1);
+  for (int32_t i = n - 1; i >= 0; --i) {
+    x->p[i][0] = b->p[i][0] / A->p[i][i];
+    for (int32_t k = i - 1; k >= 0; --k) {
+      b->p[k][0] -= A->p[k][i] * x->p[i][0];
+    }
+  }
+}
+
+void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x)
+{
+  assert(A->cols == x->rows && x->rows == b->rows);
+  assert(b->cols == 1 && x->cols == 1);
+
+  MatDoub A_(A->rows, A->cols);
+  for (uint32_t i = 0; i < A->rows; i ++ )
+  {
+    for (uint32_t j = 0; j < A->cols; j ++ )
+    {
+      A_[i][j] = A->p[i][j];
+    }
+  }
+
+  MatDoub b_(b->rows, b->cols);
+  MatDoub x_(x->rows, x->cols);
+  for (uint32_t i = 0; i < b->rows; i ++ )
+  {
+    b_[i][0] = b->p[i][0];
+  }
+
+  SVD sv(A_);
+  sv.solve(b_, x_);
+
+  for (uint32_t i = 0; i < x->rows; i ++ )
+  {
+    x->p[i][0] = x_[i][0];
+  }
+}

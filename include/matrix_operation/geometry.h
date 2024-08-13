@@ -22,14 +22,15 @@ extern "C" {
   } MAT_DYNAMIC_D;
 
   typedef struct SVD_DYNAMIC_D {
-    MAT_DYNAMIC_D U;
+    MAT_DYNAMIC_D U; 
     MAT_DYNAMIC_D D;
-    MAT_DYNAMIC_D V;
+    MAT_DYNAMIC_D V; // should not be used
   } SVD_DYNAMIC_D;
 
-  void NEW_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, uint32_t rows, uint32_t cols);
+  void NEW_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, const uint32_t rows, const uint32_t cols);
   void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
   void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
+  void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest);
 
   // compute SVD decomposition for mat, saved in svd
   // mat = U*D*V^T
@@ -54,7 +55,7 @@ extern "C" {
   void AAT_VEC_D_3(VEC_D_3 v, MAT_D_3_3 m);
 
   // m = U*D*V^T
-  void SVD_MAT_D_3_3(MAT_D_3_3 m, MAT_D_3_3 U, VEC_D_3 V, MAT_D_3_3 D);
+  void SVD_MAT_D_3_3(MAT_D_3_3 m, MAT_D_3_3 U, MAT_D_3_3 V, MAT_D_3_3 D);
 
   // m = m^T inplace
   void TRANSPOSE_MAT_D_3_3(MAT_D_3_3 m);
