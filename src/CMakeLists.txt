@@ -8,8 +8,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(../include/matrix_operation)
 add_library(matrix_operation SHARED
         matrix_operation/geometry.cpp
-        matrix_operation/solver.c
-        matrix_operation/svd3.cpp)
+        matrix_operation/solver.c)
 
 add_library(matrix SHARED
         matrix_operation/Matrix.cc)

@@ -139,6 +139,9 @@ int main()
     {
         printf("svd decomposition 33 ref: \n");
         MAT_D_3_3 mat, U, D, V;
+        for (int i = 0; i < 3; i ++ ) for (int j = 0; j < 3; j ++ ) U[i][j] = 0.0;
+        for (int i = 0; i < 3; i ++ ) for (int j = 0; j < 3; j ++ ) D[i][j] = 0.0;
+        for (int i = 0; i < 3; i ++ ) for (int j = 0; j < 3; j ++ ) V[i][j] = 0.0;
         // NEW_MAT_DYNAMIC_D(&b, 3, 1);
 
         // Fill A and b with your data
@@ -166,6 +169,10 @@ int main()
     {
         printf("svd decomposition 33: \n");
         MAT_D_3_3 mat, U, D, V;
+        for (int i = 0; i < 3; i ++ ) for (int j = 0; j < 3; j ++ ) U[i][j] = 0.0;
+        for (int i = 0; i < 3; i ++ ) for (int j = 0; j < 3; j ++ ) D[i][j] = 0.0;
+        for (int i = 0; i < 3; i ++ ) for (int j = 0; j < 3; j ++ ) V[i][j] = 0.0;
+
         // NEW_MAT_DYNAMIC_D(&b, 3, 1);
 
         // Fill A and b with your data
@@ -267,7 +274,7 @@ int main()
     {
         printf("HouseholderQr ref: \n");
         MAT_DYNAMIC_D A, b, x;
-        NEW_MAT_DYNAMIC_D(&A, 3, 2);
+        NEW_MAT_DYNAMIC_D(&A, 3, 3);
         NEW_MAT_DYNAMIC_D(&b, 3, 1);
         NEW_MAT_DYNAMIC_D(&x, 3, 1);
 
@@ -275,21 +282,64 @@ int main()
         A.p[0][0] = 1;
         A.p[0][1] = 1;
         A.p[0][2] = 0;
-        A.p[1][0] = 1;
+        A.p[1][0] = 0;
         A.p[1][1] = 1;
         A.p[1][2] = 0;
-        // A.p[2][0] = 1;
-        // A.p[2][1] = 1;
-        // A.p[2][2] = 1;
+        A.p[2][0] = 1;
+        A.p[2][1] = 1;
+        A.p[2][2] = 1;
 
         b.p[0][0] = 1;
         b.p[1][0] = 1;
         b.p[2][0] = 0;
 
         SOLVE_A_x_b_MAT_by_colPivHouseholderQr_MAT_DYNAMIC_D_ref(&A, &b, &x);
+
+        printf("A : \n");
         print_mat(&A);
+        printf("b : \n");
         print_mat(&b);
+        printf("x : \n");
         print_mat(&x);
+
+
+        // Free memory
+        FREE_MAT_DYNAMIC_D(&A);
+        FREE_MAT_DYNAMIC_D(&b);
+        FREE_MAT_DYNAMIC_D(&x);
+    }
+
+    {
+        printf("HouseholderQr: \n");
+        MAT_DYNAMIC_D A, b, x;
+        NEW_MAT_DYNAMIC_D(&A, 3, 3);
+        NEW_MAT_DYNAMIC_D(&b, 3, 1);
+        NEW_MAT_DYNAMIC_D(&x, 3, 1);
+
+        // Fill A and b with your data
+        A.p[0][0] = 1;
+        A.p[0][1] = 1;
+        A.p[0][2] = 0;
+        A.p[1][0] = 0;
+        A.p[1][1] = 1;
+        A.p[1][2] = 0;
+        A.p[2][0] = 1;
+        A.p[2][1] = 1;
+        A.p[2][2] = 1;
+
+        b.p[0][0] = 1;
+        b.p[1][0] = 1;
+        b.p[2][0] = 0;
+
+        SOLVE_A_x_b_MAT_by_colPivHouseholderQr_MAT_DYNAMIC_D(&A, &b, &x);
+
+        printf("A : \n");
+        print_mat(&A);
+        printf("b : \n");
+        print_mat(&b);
+        printf("x : \n");
+        print_mat(&x);
+
 
         // Free memory
         FREE_MAT_DYNAMIC_D(&A);
@@ -357,7 +407,7 @@ int main()
         b.p[2][0] = 0;
 
         SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D(&A, &b, &x);
-        
+
         printf("A : \n");
         print_mat(&A);
         printf("b : \n");

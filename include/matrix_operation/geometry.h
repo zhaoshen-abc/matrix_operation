@@ -11,7 +11,7 @@ extern "C" {
   typedef double MAT_D_3_3[3][3];
   typedef double POSE_D[3][4];
   typedef double VEC_D_3[3];
-  typedef double VEC_D_4[3];
+  typedef double VEC_D_4[4];
   typedef double VEC_D_6[6]; // [x y z rx ry rz]
   typedef double Quaternion_D[4];
 
