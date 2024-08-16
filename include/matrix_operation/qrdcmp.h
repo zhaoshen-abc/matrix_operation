@@ -26,7 +26,7 @@ QRdcmp::QRdcmp(MatDoub_I &a)
     Doub scale, sigma, sum, tau;
     for (k = 0; k < n - 1; k++) {
         scale = 0.0;
-        for (i = k; i < n; i++) scale = MAX(scale, abs(r[i][k]));
+        for (i = k; i < n; i++) scale = MAX_(scale, fabs(r[i][k]));
         if (scale == 0.0) {
             sing = true;
             c[k] = d[k] = 0.0;
@@ -103,10 +103,10 @@ void QRdcmp::update(VecDoub_I &u, VecDoub_I &v) {
     for (i = k - 1; i >= 0; i--) {
         rotate(i, w[i], -w[i + 1]);
         if (w[i] == 0.0)
-            w[i] = abs(w[i + 1]);
-        else if (abs(w[i]) > abs(w[i + 1]))
-            w[i] = abs(w[i]) * sqrt(1.0 + SQR(w[i + 1] / w[i]));
-        else w[i] = abs(w[i + 1]) * sqrt(1.0 + SQR(w[i] / w[i + 1]));
+            w[i] = fabs(w[i + 1]);
+        else if (fabs(w[i]) > fabs(w[i + 1]))
+            w[i] = fabs(w[i]) * sqrt(1.0 + SQR(w[i + 1] / w[i]));
+        else w[i] = fabs(w[i + 1]) * sqrt(1.0 + SQR(w[i] / w[i + 1]));
     }
     for (i = 0; i < n; i++) r[0][i] += w[0] * v[i];
     for (i = 0; i < k; i++)
@@ -121,7 +121,7 @@ void QRdcmp::rotate(const Int i, const Doub a, const Doub b) {
     if (a == 0.0) {
         c = 0.0;
         s = (b >= 0.0 ? 1.0 : -1.0);
-    } else if (abs(a) > abs(b)) {
+    } else if (fabs(a) > fabs(b)) {
         fact = b / a;
         c = SIGN(1.0 / sqrt(1.0 + (fact * fact)), a);
         s = fact * c;

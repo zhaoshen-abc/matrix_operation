@@ -118,7 +118,7 @@ void SVD::decompose() {
         rv1[i] = scale * g;
         g = s = scale = 0.0;
         if (i < m) {
-            for (k = i; k < m; k++) scale += abs(u[k][i]);
+            for (k = i; k < m; k++) scale += fabs(u[k][i]);
             if (scale != 0.0) {
                 for (k = i; k < m; k++) {
                     u[k][i] /= scale;
@@ -139,7 +139,7 @@ void SVD::decompose() {
         w[i] = scale * g;
         g = s = scale = 0.0;
         if (i + 1 <= m && i + 1 != n) {
-            for (k = l - 1; k < n; k++) scale += abs(u[i][k]);
+            for (k = l - 1; k < n; k++) scale += fabs(u[i][k]);
             if (scale != 0.0) {
                 for (k = l - 1; k < n; k++) {
                     u[i][k] /= scale;
@@ -157,7 +157,7 @@ void SVD::decompose() {
                 for (k = l - 1; k < n; k++) u[i][k] *= scale;
             }
         }
-        anorm = MAX(anorm, (abs(w[i]) + abs(rv1[i])));
+        anorm = MAX_(anorm, (fabs(w[i]) + fabs(rv1[i])));
     }
     for (i = n - 1; i >= 0; i--) {
         if (i < n - 1) {
@@ -175,7 +175,7 @@ void SVD::decompose() {
         g = rv1[i];
         l = i;
     }
-    for (i = MIN(m, n) - 1; i >= 0; i--) {
+    for (i = MIN_(m, n) - 1; i >= 0; i--) {
         l = i + 1;
         g = w[i];
         for (j = l; j < n; j++) u[i][j] = 0.0;
@@ -195,11 +195,11 @@ void SVD::decompose() {
             flag = true;
             for (l = k; l >= 0; l--) {
                 nm = l - 1;
-                if (l == 0 || abs(rv1[l]) <= eps * anorm) {
+                if (l == 0 || fabs(rv1[l]) <= eps * anorm) {
                     flag = false;
                     break;
                 }
-                if (abs(w[nm]) <= eps * anorm) break;
+                if (fabs(w[nm]) <= eps * anorm) break;
             }
             if (flag) {
                 c = 0.0;
@@ -207,7 +207,7 @@ void SVD::decompose() {
                 for (i = l; i < k + 1; i++) {
                     f = s * rv1[i];
                     rv1[i] = c * rv1[i];
-                    if (abs(f) <= eps * anorm) break;
+                    if (fabs(f) <= eps * anorm) break;
                     g = w[i];
                     h = pythag(f, g);
                     w[i] = h;
@@ -324,7 +324,7 @@ void SVD::reorder() {
 }
 
 Doub SVD::pythag(const Doub a, const Doub b) {
-    Doub absa = abs(a), absb = abs(b);
-    return (absa > absb ? absa * sqrt(1.0 + SQR(absb / absa)) :
-            (absb == 0.0 ? 0.0 : absb * sqrt(1.0 + SQR(absa / absb))));
+    Doub fabsa = fabs(a), fabsb = fabs(b);
+    return (fabsa > fabsb ? fabsa * sqrt(1.0 + SQR(fabsb / fabsa)) :
+            (fabsb == 0.0 ? 0.0 : fabsb * sqrt(1.0 + SQR(fabsa / fabsb))));
 }

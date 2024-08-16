@@ -9,19 +9,19 @@
 //#define _TURNONFPES_ 1
 
 // all the system #include's we'll ever need
-#include <fstream>
+// #include <fstream>
 #include <cmath>
-#include <complex>
-#include <iostream>
-#include <iomanip>
-#include <vector>
+// #include <complex>
+// #include <iostream>
+// #include <iomanip>
+// #include <vector>
 #include <limits>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+// #include <time.h>
 #include <fcntl.h>
 #include <string.h>
-#include <ctype.h>
+// #include <ctype.h>
 
 
 // macro-like inline functions
@@ -30,18 +30,18 @@ template<class T>
 inline T SQR(const T a) { return a * a; }
 
 template<class T>
-inline const T &MAX(const T &a, const T &b) { return b > a ? (b) : (a); }
+inline const T &MAX_(const T &a, const T &b) { return b > a ? (b) : (a); }
 
-inline float MAX(const double &a, const float &b) { return b > a ? (b) : float(a); }
+inline float MAX_(const double &a, const float &b) { return b > a ? (b) : float(a); }
 
-inline float MAX(const float &a, const double &b) { return b > a ? float(b) : (a); }
+inline float MAX_(const float &a, const double &b) { return b > a ? float(b) : (a); }
 
 template<class T>
-inline const T &MIN(const T &a, const T &b) { return b < a ? (b) : (a); }
+inline const T &MIN_(const T &a, const T &b) { return b < a ? (b) : (a); }
 
-inline float MIN(const double &a, const float &b) { return b < a ? (b) : float(a); }
+inline float MIN_(const double &a, const float &b) { return b < a ? (b) : float(a); }
 
-inline float MIN(const float &a, const double &b) { return b < a ? float(b) : (a); }
+inline float MIN_(const float &a, const double &b) { return b < a ? float(b) : (a); }
 
 template<class T>
 inline T SIGN(const T &a, const T &b) { return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a); }
@@ -470,7 +470,7 @@ typedef unsigned char Uchar;
 typedef double Doub; // default floating type
 typedef long double Ldoub;
 
-typedef std::complex<double> Complex; // default complex type
+// typedef std::complex<double> Complex; // default complex type
 
 typedef bool Bool;
 
@@ -513,8 +513,8 @@ typedef NRvector<Doub> VecDoub, VecDoub_O, VecDoub_IO;
 typedef const NRvector<Doub *> VecDoubp_I;
 typedef NRvector<Doub *> VecDoubp, VecDoubp_O, VecDoubp_IO;
 
-typedef const NRvector<Complex> VecComplex_I;
-typedef NRvector<Complex> VecComplex, VecComplex_O, VecComplex_IO;
+// typedef const NRvector<Complex> VecComplex_I;
+// typedef NRvector<Complex> VecComplex, VecComplex_O, VecComplex_IO;
 
 typedef const NRvector<Bool> VecBool_I;
 typedef NRvector<Bool> VecBool, VecBool_O, VecBool_IO;

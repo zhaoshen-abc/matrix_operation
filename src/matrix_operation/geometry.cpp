@@ -1,6 +1,6 @@
 #include "geometry.h"
 #include <assert.h>
-#include <math.h>
+// #include <math.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include "stdio.h"
@@ -561,9 +561,25 @@ void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat) {
     free(mat->p[i]);
   }
   free(mat->p);
-  mat->p = NULL;
   mat->rows = 0;
   mat->cols = 0;
+}
+
+// svd = U * D * V^T
+void NEW_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd, const uint32_t mat_rows, const uint32_t mat_cols) {
+  NEW_MAT_DYNAMIC_D(&svd->U, mat_rows, mat_rows);
+  NEW_MAT_DYNAMIC_D(&svd->D, mat_rows, mat_cols);
+  NEW_MAT_DYNAMIC_D(&svd->V, mat_cols, mat_cols);
+
+  return;
+}
+
+void FREE_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd) {
+  FREE_MAT_DYNAMIC_D(&svd->U);
+  FREE_MAT_DYNAMIC_D(&svd->D);
+  FREE_MAT_DYNAMIC_D(&svd->V);
+
+  return;
 }
 
 void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat) {
@@ -643,19 +659,23 @@ void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest) {
   }
 }
 
-// svd = U * D * V^T
-void NEW_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd, const uint32_t mat_rows, const uint32_t mat_cols) {
-  NEW_MAT_DYNAMIC_D(&svd->U, mat_rows, mat_rows);
-  NEW_MAT_DYNAMIC_D(&svd->D, mat_rows, mat_cols);
-  NEW_MAT_DYNAMIC_D(&svd->V, mat_cols, mat_cols);
 
-  return;
-}
+// ATA = A^T * A
+void ATA_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* ATA) {
+  assert(A->cols == ATA->rows);
+  assert(ATA->cols == ATA->rows);
 
-void FREE_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd) {
-  FREE_MAT_DYNAMIC_D(&svd->U);
-  FREE_MAT_DYNAMIC_D(&svd->D);
-  FREE_MAT_DYNAMIC_D(&svd->V);
+  int m = A->rows;
+  int n = A->cols;
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      double val = 0.0;
+      for (int k = 0; k < m; ++k) {
+        val += A->p[k][i] * A->p[k][j];
+      }
+      ATA->p[i][j] = val;
+    }
+  }
 
   return;
 }
@@ -680,11 +700,11 @@ void SOLVE_A_x_b_GaussianElimination(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYN
   uint32_t n = A->rows;
   for (uint32_t i = 0; i < n; ++i) {
     // Partial pivoting
-    double max = abs(A->p[i][i]);
+    double max = fabs(A->p[i][i]);
     uint32_t maxRow = i;
     for (uint32_t k = i + 1; k < n; ++k) {
-      if (abs(A->p[k][i]) > max) {
-        max = abs(A->p[k][i]);
+      if (fabs(A->p[k][i]) > max) {
+        max = fabs(A->p[k][i]);
         maxRow = k;
       }
     }
@@ -724,7 +744,7 @@ void SOLVE_A_x_b_GaussianElimination(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYN
 
 void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x)
 {
-  assert(A->cols == x->rows && x->rows == b->rows);
+  assert(A->cols == x->rows && A->rows == b->rows);
   assert(b->cols == 1 && x->cols == 1);
 
   MatDoub A_(A->rows, A->cols);
@@ -754,7 +774,7 @@ void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MA
 
 void SOLVE_A_x_b_MAT_by_colPivHouseholderQr_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x)
 {
-  assert(A->cols == x->rows && x->rows == b->rows);
+  assert(A->cols == x->rows && A->rows == b->rows);
   assert(b->cols == 1 && x->cols == 1);
 
   MatDoub A_(A->rows, A->cols);
@@ -781,3 +801,260 @@ void SOLVE_A_x_b_MAT_by_colPivHouseholderQr_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_
     x->p[i][0] = x_[i];
   }
 }
+
+void SET_ZERO_VEC_D_3(VEC_D_3 v)
+{
+  for (int i = 0; i < 3; i ++ ) v[i] = 0.0;
+}
+
+// v = v * n
+void MULTIPLY_SCALE_VEC_D_3(VEC_D_3 v, double n)
+{
+  for (int i = 0; i < 3; i ++ ) v[i] *= n;
+}
+
+// m = v * v^T
+void AAT_VEC_D_3(VEC_D_3 v, MAT_D_3_3 m)
+{
+
+  for (int i = 0; i < 3; i ++ ) 
+  {
+    for (int j = 0; j < 3; j ++ )
+    {
+      m[i][j] = v[i] * v[j];
+    }
+  }
+}
+
+// m = m^T inplace
+void TRANSPOSE_MAT_D_3_3(MAT_D_3_3 m)
+{
+  transpose_Mat33d_inplace(m);
+}
+
+// return rank of m
+int RANK_MAT_D_3_3(MAT_D_3_3 m)
+{
+  MatDoub A_(3, 3);
+  for (uint32_t i = 0; i < 3; i ++ )
+  {
+    for (uint32_t j = 0; j < 3; j ++ )
+    {
+      A_[i][j] = m[i][j];
+    }
+  }
+
+  SVD sv(A_);
+  return sv.rank();
+}
+
+// inv_m = m^-1
+void INVERSE_MAT_D_3_3(MAT_D_3_3 A, MAT_D_3_3 B)
+{
+	int i, j, k;
+	float max, temp;
+  int n = 3;
+
+	float t[n][n];                //临时矩阵
+								  //将A矩阵存放在临时矩阵t[n][n]中
+	for (i = 0; i < n; i++)
+	{
+		for (j = 0; j < n; j++)
+		{
+			t[i][j] = A[i][j];
+		}
+	}
+	//初始化B矩阵为单位阵
+	for (i = 0; i < n; i++)
+	{
+		for (j = 0; j < n; j++)
+		{
+			B[i][j] = (i == j) ? (float)1 : 0;
+		}
+	}
+	for (i = 0; i < n; i++)
+	{
+		//寻找主元
+		max = t[i][i];
+		k = i;
+		for (j = i + 1; j < n; j++)
+		{
+			if (fabsf(t[j][i]) > fabsf(max))
+			{
+				max = t[j][i];
+				k = j;
+			}
+		}
+		//如果主元所在行不是第i行，进行行交换
+		if (k != i)
+		{
+			for (j = 0; j < n; j++)
+			{
+				temp = t[i][j];
+				t[i][j] = t[k][j];
+				t[k][j] = temp;
+				//B伴随交换
+				temp = B[i][j];
+				B[i][j] = B[k][j];
+				B[k][j] = temp;
+			}
+		}
+		//判断主元是否为0, 若是, 则矩阵A不是满秩矩阵,不存在逆矩阵
+		if (t[i][i] == 0)
+		{
+			printf("There is no inverse matrix!");
+			// system("pause");
+			exit(0);
+		}
+		//消去A的第i列除去i行以外的各行元素
+		temp = t[i][i];
+		for (j = 0; j < n; j++)
+		{
+			t[i][j] = t[i][j] / temp;        //主对角线上的元素变为1
+			B[i][j] = B[i][j] / temp;        //伴随计算
+		}
+		for (j = 0; j < n; j++)        //第0行->第n行
+		{
+			if (j != i)                //不是第i行
+			{
+				temp = t[j][i];
+				for (k = 0; k < n; k++)        //第j行元素 - i行元素*j列i行元素
+				{
+					t[j][k] = t[j][k] - t[i][k] * temp;
+					B[j][k] = B[j][k] - B[i][k] * temp;
+				}
+			}
+		}
+	}
+}
+
+// return v1^T * v2
+double DOT_PRODUCT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2)
+{
+  double sum = 0.0;
+  for (int i = 0; i < 3; i ++ ) sum += v1[i]*v2[i];
+  return sum;
+}
+
+// return || v1 - v2 ||^2
+double SQUARED_L2_DIST_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2)
+{
+  double sum = 0.0;
+  for (int i = 0; i < 3; ++i) sum += (v1[i] - v2[i])*(v1[i] - v2[i]);
+  return sum;
+}
+
+// return || p ||^2
+double squaredNorm_VEC_D_3(VEC_D_3 p)
+{
+  double sum = 0.0;
+  for (int i = 0; i < 3; i ++ ) sum += p[i]*p[i];
+  return sum;
+}
+
+// m = [0, 0, 0; 0, 0, 0; 0, 0, 0;];
+void SET_ZERO_MAT_D_3_3(MAT_D_3_3 m)
+{
+  for (int i = 0; i < 3; i ++ ) 
+  {
+    for (int j = 0; j < 3; j ++ )
+    {
+      m[i][j] = 0.0;
+    }
+  }
+}
+
+double DET(MAT_D_3_3 m, int n)
+{
+	int i, M;//i是第一行的列指标，M是余子式的值，sum是行列式的计算值
+  double sum = 0.0;
+	if (n == 1)//一阶行列式直接得出结果
+		return m[0][0];
+	else if (n > 1)
+	{
+		for (i = 0; i < n; i++)//按第一行展开
+		{
+			M = Minor(m, i, n);
+			sum += pow(-1, i + 2) * m[0][i] * M;
+		}
+	}
+	return sum;
+}
+
+int Minor(MAT_D_3_3 arr1,int i,int n)
+{
+	int  j, k,result;
+	MAT_D_3_3 arr2;
+	
+	//以下为构造余子式的过程。由于C语言的特性，这个过程会比较复杂，需要观察余子式与原行列式的关系。
+		for (j = 0; j < n - 1; j++)
+		{
+			for (k = 0; k < n - 1; k++)
+			{
+				if (k < i)
+					arr2[j][k] = arr1[j + 1][k];
+				else if (k >= i)
+					arr2[j][k] = arr1[j + 1][k + 1];
+			}
+		}
+		
+	return DET(arr2, n - 1);//构造完后，余子式是一个新的行列式，返回DET函数进行计算。
+}
+
+// return |m|
+double determinant_MAT_D_3_3(MAT_D_3_3 m)
+{
+  return DET(m, 3);
+}
+
+// m_out = m_in
+void EQU_MAT_D_3_3(MAT_D_3_3 m_in, MAT_D_3_3 m_out)
+{
+  for (int i = 0; i < 3; i ++ ) 
+  {
+    for (int j = 0; j < 3; j ++ )
+    {
+      m_out[i][j] = m_in[i][j];
+    }
+  }
+}
+
+// from https://github.com/datenwolf/linmath.h/blob/master/linmath.h
+  uint32_t qua2mat(const Quaternion_D q, MAT_D_3_3 M)
+  {
+    float a = q[0];
+    float b = q[1];
+    float c = q[2];
+    float d = q[3];
+    float a2 = a*a;
+    float b2 = b*b;
+    float c2 = c*c;
+    float d2 = d*d;
+    
+    M[0][0] = a2 + b2 - c2 - d2;
+    M[0][1] = 2.f*(b*c + a*d);
+    M[0][2] = 2.f*(b*d - a*c);
+
+    M[1][0] = 2*(b*c - a*d);
+    M[1][1] = a2 - b2 + c2 - d2;
+    M[1][2] = 2.f*(c*d + a*b);
+
+    M[2][0] = 2.f*(b*d + a*c);
+    M[2][1] = 2.f*(c*d - a*b);
+    M[2][2] = a2 - b2 - c2 + d2;
+
+    return 0;
+  }
+
+  uint32_t normalize_q(Quaternion_D q)
+  {
+    double norm = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+    norm = 1.0 / norm;
+
+    q[0] *= norm;
+    q[1] *= norm;
+    q[2] *= norm;
+    q[3] *= norm;
+
+    return 0;
+  }
