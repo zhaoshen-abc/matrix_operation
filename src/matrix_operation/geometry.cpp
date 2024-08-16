@@ -550,9 +550,9 @@
 void NEW_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, const uint32_t rows, const uint32_t cols) {
   mat->rows = rows;
   mat->cols = cols;
-  mat->p = (double**)calloc(rows * sizeof(double*), 0);
+  mat->p = (double**)calloc(rows, sizeof(double*));
   for (uint32_t i = 0; i < rows; ++i) {
-    mat->p[i] = (double*)calloc(cols * sizeof(double), 0);
+    mat->p[i] = (double*)calloc(cols, sizeof(double));
   }
 }
 
@@ -642,6 +642,36 @@ void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest) {
     }
   }
 }
+
+// svd = U * D * V^T
+void NEW_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd, const uint32_t mat_rows, const uint32_t mat_cols) {
+  NEW_MAT_DYNAMIC_D(&svd->U, mat_rows, mat_rows);
+  NEW_MAT_DYNAMIC_D(&svd->D, mat_rows, mat_cols);
+  NEW_MAT_DYNAMIC_D(&svd->V, mat_cols, mat_cols);
+
+  return;
+}
+
+void FREE_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd) {
+  FREE_MAT_DYNAMIC_D(&svd->U);
+  FREE_MAT_DYNAMIC_D(&svd->D);
+  FREE_MAT_DYNAMIC_D(&svd->V);
+
+  return;
+}
+
+ void TRANSPOSE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* AT) {
+  assert(A->rows == AT->cols);
+  assert(A->cols == AT->rows);
+
+  for (int i = 0; i < AT->rows; ++i) {
+    for (int j = 0; j < AT->cols; ++j) {
+      AT->p[i][j] = A->p[j][i];
+    }
+  }
+
+  return;
+ }
 
 // Solve a system of linear equations Ax = b using Gaussian elimination with partial pivoting.
 // A is an n-by-n matrix, b is an n-by-1 matrix (column vector), and x is the solution vector.

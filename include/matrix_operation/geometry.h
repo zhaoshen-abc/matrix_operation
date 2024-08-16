@@ -31,6 +31,9 @@ extern "C" {
   void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
   void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
   void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest);
+  void NEW_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd, const uint32_t mat_rows, const uint32_t mat_cols);
+  void FREE_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd);
+  void TRANSPOSE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* AT);
 
   // compute SVD decomposition for mat, saved in svd
   // mat = U*D*V^T
