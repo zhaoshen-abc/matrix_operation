@@ -86,7 +86,7 @@ void QRdcmp::qtmult(VecDoub_I &b, VecDoub_O &x) {
 void QRdcmp::rsolve(VecDoub_I &b, VecDoub_O &x) {
     Int i, j;
     Doub sum;
-    if (sing) throw("attempting solve in a singular QR");
+    if (sing) printf("attempting solve in a singular QR");
     for (i = n - 1; i >= 0; i--) {
         sum = b[i];
         for (j = i + 1; j < n; j++) sum -= r[i][j] * x[j];
