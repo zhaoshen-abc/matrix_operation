@@ -81,7 +81,12 @@
         "geometry.h": "c",
         "stdint.h": "c",
         "eigen": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "any": "cpp",
+        "filesystem": "cpp",
+        "source_location": "cpp",
+        "shared_mutex": "cpp",
+        "charconv": "cpp"
     },
     "ros.distro": "noetic"
 }

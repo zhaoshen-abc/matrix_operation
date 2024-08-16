@@ -8,7 +8,8 @@ struct SVD {
     Doub eps, tsh;
 
     SVD(MatDoub_I &a) : m(a.nrows()), n(a.ncols()), u(a), v(n, n), w(n) {
-        eps = std::numeric_limits<Doub>::epsilon();
+        // eps = std::numeric_limits<Doub>::epsilon();
+        eps = 1e-40;
         decompose();
         reorder();
         tsh = 0.5 * sqrt(m + n + 1.) * w[0] * eps;

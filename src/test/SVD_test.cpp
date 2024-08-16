@@ -241,8 +241,8 @@ for (int i = 0; i < 12; ++i) {
 
 {
 
-  std::string path_ref = "/home/lym/Desktop/pnp_log/ref.bin";
-  std::string path_our = "/home/lym/Desktop/pnp_log/our.bin";
+  std::string path_ref = "/home/zhaoshen/Mycode/matrix_operation/src/bin_for_test/ref.bin";
+  std::string path_our = "/home/zhaoshen/Mycode/matrix_operation/src/bin_for_test/our.bin";
   std::ifstream ifs_ref(path_ref, std::ios::binary | std::ios::in);
   std::ifstream ifs_our(path_our, std::ios::binary | std::ios::in);
 
@@ -317,6 +317,9 @@ for (int i = 0; i < 12; ++i) {
 
   std::cout << "U_ref_eigen" << std::endl;
   std::cout << U_ref_eigen.transpose() << std::endl;
+
+  std::cout << "U_ref_singl : " << std::endl;
+  std::cout << D_our_eigen.transpose() << std::endl;
   std::cout << "U_ref" << std::endl;
   for (int i = 0; i < 12; ++i) {
     for (int j = 0; j < 12; ++j) {
@@ -329,6 +332,12 @@ for (int i = 0; i < 12; ++i) {
 
   std::cout << "U_our_eigen" << std::endl;
   std::cout << U_our_eigen.transpose() << std::endl;
+    std::cout << "U_our_singl : " << std::endl;
+  for (int i = 0; i < 12; i ++ )
+  {
+    std::cout << svd_our.D.p[i][i] << " ";
+  }
+
   std::cout << "U_our" << std::endl;
   for (int i = 0; i < 12; ++i) {
     for (int j = 0; j < 12; ++j) {
