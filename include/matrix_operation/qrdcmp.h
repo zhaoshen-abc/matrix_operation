@@ -69,8 +69,9 @@ QRdcmp::QRdcmp(MatDoub_I &a)
 }
 
 void QRdcmp::solve(VecDoub_I &b, VecDoub_O &x) {
-    qtmult(b, x);
-    rsolve(x, x);
+    VecDoub Qtb(n);
+    qtmult(b, Qtb);
+    rsolve(Qtb, x);
 }
 
 void QRdcmp::qtmult(VecDoub_I &b, VecDoub_O &x) {

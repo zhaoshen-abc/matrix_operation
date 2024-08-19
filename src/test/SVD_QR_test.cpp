@@ -128,7 +128,7 @@ void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D_ref(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b
 //   Eigen::VectorXd eigen_x = eigen_A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(eigen_b);
 
   // Convert Eigen::VectorXd to MAT_DYNAMIC_D
-  NEW_MAT_DYNAMIC_D(x, A->cols, 1); // Assuming x is a column vector
+  // NEW_MAT_DYNAMIC_D(x, A->cols, 1); // Assuming x is a column vector
   for (uint32_t i = 0; i < A->cols; ++i) {
     x->p[i][0] = eigen_x(i);
   }
@@ -274,28 +274,46 @@ int main()
     {
         printf("HouseholderQr ref: \n");
         MAT_DYNAMIC_D A, b, x;
-        NEW_MAT_DYNAMIC_D(&A, 4, 3);
-        NEW_MAT_DYNAMIC_D(&b, 4, 1);
-        NEW_MAT_DYNAMIC_D(&x, 3, 1);
+        NEW_MAT_DYNAMIC_D(&A, 5, 4);
+        NEW_MAT_DYNAMIC_D(&b, 5, 1);
+        NEW_MAT_DYNAMIC_D(&x, 4, 1);
 
         // Fill A and b with your data
-        A.p[0][0] = 1;
-        A.p[0][1] = 1;
+        A.p[0][0] = 17;
+        A.p[0][1] = 24;
         A.p[0][2] = 1;
-        A.p[1][0] = 0;
-        A.p[1][1] = 2;
-        A.p[1][2] = 0;
-        A.p[2][0] = 1;
-        A.p[2][1] = 3;
-        A.p[2][2] = 4;
-        A.p[3][0] = 5;
-        A.p[3][1] = 2;
-        A.p[3][2] = 1;
+        A.p[0][3] = 8;
+        // A.p[0][4] = 15;
+
+        A.p[1][0] = 23;
+        A.p[1][1] = 5;
+        A.p[1][2] = 7;
+        A.p[1][3] = 14;
+        // A.p[1][4] = 16;
+
+        A.p[2][0] = 4;
+        A.p[2][1] = 6;
+        A.p[2][2] = 13;
+        A.p[2][3] = 20;
+        // A.p[2][4] = 22;
+
+        A.p[3][0] = 10;
+        A.p[3][1] = 12;
+        A.p[3][2] = 19;
+        A.p[3][3] = 21;
+        // A.p[3][4] = 3;
+
+        A.p[4][0] = 11;
+        A.p[4][1] = 18;
+        A.p[4][2] = 25;
+        A.p[4][3] = 2;
+        // A.p[4][4] = 9;
 
         b.p[0][0] = 1;
         b.p[1][0] = 1;
         b.p[2][0] = 0;
-        b.p[2][0] = 1;
+        b.p[3][0] = 1;
+        b.p[4][0] = 1;
 
         printf("A : \n");
         print_mat(&A);
@@ -307,7 +325,6 @@ int main()
         printf("x : \n");
         print_mat(&x);
 
-
         // Free memory
         FREE_MAT_DYNAMIC_D(&A);
         FREE_MAT_DYNAMIC_D(&b);
@@ -317,28 +334,46 @@ int main()
     {
         printf("HouseholderQr: \n");
         MAT_DYNAMIC_D A, b, x;
-        NEW_MAT_DYNAMIC_D(&A, 4, 3);
-        NEW_MAT_DYNAMIC_D(&b, 4, 1);
-        NEW_MAT_DYNAMIC_D(&x, 3, 1);
+        NEW_MAT_DYNAMIC_D(&A, 5, 4);
+        NEW_MAT_DYNAMIC_D(&b, 5, 1);
+        NEW_MAT_DYNAMIC_D(&x, 4, 1);
 
         // Fill A and b with your data
-        A.p[0][0] = 1;
-        A.p[0][1] = 1;
+        A.p[0][0] = 17;
+        A.p[0][1] = 24;
         A.p[0][2] = 1;
-        A.p[1][0] = 0;
-        A.p[1][1] = 2;
-        A.p[1][2] = 0;
-        A.p[2][0] = 1;
-        A.p[2][1] = 3;
-        A.p[2][2] = 4;
-        A.p[3][0] = 5;
-        A.p[3][1] = 2;
-        A.p[3][2] = 1;
+        A.p[0][3] = 8;
+        // A.p[0][4] = 15;
+
+        A.p[1][0] = 23;
+        A.p[1][1] = 5;
+        A.p[1][2] = 7;
+        A.p[1][3] = 14;
+        // A.p[1][4] = 16;
+
+        A.p[2][0] = 4;
+        A.p[2][1] = 6;
+        A.p[2][2] = 13;
+        A.p[2][3] = 20;
+        // A.p[2][4] = 22;
+
+        A.p[3][0] = 10;
+        A.p[3][1] = 12;
+        A.p[3][2] = 19;
+        A.p[3][3] = 21;
+        // A.p[3][4] = 3;
+
+        A.p[4][0] = 11;
+        A.p[4][1] = 18;
+        A.p[4][2] = 25;
+        A.p[4][3] = 2;
+        // A.p[4][4] = 9;
 
         b.p[0][0] = 1;
         b.p[1][0] = 1;
         b.p[2][0] = 0;
-        b.p[2][0] = 1;
+        b.p[3][0] = 1;
+        b.p[4][0] = 1;
 
         printf("A : \n");
         print_mat(&A);
