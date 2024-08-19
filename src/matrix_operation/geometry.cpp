@@ -796,6 +796,26 @@ void SOLVE_A_x_b_MAT_by_colPivHouseholderQr_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_
   QRdcmp sv(A_);
   sv.solve(b_, x_);
 
+  printf("qt: \n");
+  for (int i = 0; i < sv.qt.nrows(); i ++ )
+  {
+    for (int j = 0; j < sv.qt.nrows(); j ++ )
+    {
+      printf("%.3f ", sv.qt[i][j]);
+    }
+    printf("\n");
+  }
+
+  printf("R: \n");
+  for (int i = 0; i < sv.r.nrows(); i ++ )
+  {
+    for (int j = 0; j < sv.r.nrows(); j ++ )
+    {
+      printf("%.3f ", sv.r[i][j]);
+    }
+    printf("\n");
+  }
+
   for (uint32_t i = 0; i < x->rows; i ++ )
   {
     x->p[i][0] = x_[i];
