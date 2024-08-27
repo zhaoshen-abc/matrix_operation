@@ -772,53 +772,92 @@ void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MA
   }
 }
 
+/* ----------------------- householder ----------------------- */
+/*  Given a matrix A of dimension m by n (with n <= m) and 
+    arrays v_i of dimension m-i, for i = 1, ..., m - 1, 
+    respectively, this algorithm computes n reflection vectors
+    and the factor R of a full QR decomposition of A, where R 
+    is a m by n upper triangular matrix. The n reflection 
+    vectors are stored in the arrays v_1, ..., v_n and the 
+    columns of A are overwritten by the columns of R.
+    
+    Input variables:
+        a: pointer to array of arrays, the ith array of
+            which should correspond to the ith column of the 
+            matrix A. During the algorithm, the columns of R 
+            will overwrite the columns of A.
+        v: pointer to array of arrays in which the ith 
+            reflection vector of dimension m - i will be 
+            stored.
+        m: number of rows of A.
+        n: number of columns of A.
+
+    Features: The number of flops for this implementation is
+    ~ 2 * m * n^2 - (2/3) * n^3 and requires O(1) additional 
+    memory.                                                    */
+
+void householder (double ** a, double ** v, int m, int n) {
+    int i, j;
+    double vnorm, vTa, vpartdot;
+
+    for(i = 0; i < n; i++) {
+        /* set v[i] equal to subvector a[i][i : m] */
+        partialvec_copy(a[i], v[i], m - i, i);
+
+        /* vpartdot = ||v[i]||^2 - v[i][0] * v[i][0]; since vpartdot 
+           is unaffected by the change in v[i][0], storing this value 
+           prevents the need to recalculate the entire norm of v[i] 
+           after updating v[i][0] in the following step              */
+        vpartdot = partialdot_product(v[i], v[i], m - i, 1);
+
+        /* set v[i][0] = v[i][0] + sign(v[i][0]) * ||v[i]|| */
+        if(v[i][0] < 0) {
+            v[i][0] -= sqrt(v[i][0] * v[i][0] + vpartdot);
+        }
+        else {
+            v[i][0] += sqrt(v[i][0] * v[i][0] + vpartdot);
+        }
+
+        /* normalize v[i] */
+        vnorm = sqrt(v[i][0] * v[i][0] + vpartdot);
+        scalar_div(v[i], vnorm, m - i, v[i]);
+    
+        for(j = i; j < n; j++) {
+            /* set a[j][i:m] = a[j][i:m] - 2 * (v[i]^T a[j][i:m]) * v[i] */
+            vTa = subdot_product(a[j], v[i], m - i, i);
+            vTa *= 2;
+            partialscalar_sub(v[i], vTa, m - i, i, a[j]);
+        }
+    }
+}
+
 void SOLVE_A_x_b_MAT_by_colPivHouseholderQr_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x)
 {
   assert(A->cols == x->rows && A->rows == b->rows);
   assert(b->cols == 1 && x->cols == 1);
+  assert(A->cols <= A->rows);
 
-  MatDoub A_(A->rows, A->cols);
-  for (uint32_t i = 0; i < A->rows; i ++ )
+  QRdcmp sv(A);
+  sv.solve(b, x);
+
+  printf("QT: \n");
+  for (int i = 0; i < sv.QT.rows; i ++ )
   {
-    for (uint32_t j = 0; j < A->cols; j ++ )
+    for (int j = 0; j < sv.QT.cols; j ++ )
     {
-      A_[i][j] = A->p[i][j];
-    }
-  }
-
-  VecDoub b_(b->rows);
-  VecDoub x_(x->rows);
-  for (uint32_t i = 0; i < b->rows; i ++ )
-  {
-    b_[i] = b->p[i][0];
-  }
-
-  QRdcmp sv(A_);
-  sv.solve(b_, x_);
-
-  printf("qt: \n");
-  for (int i = 0; i < sv.qt.nrows(); i ++ )
-  {
-    for (int j = 0; j < sv.qt.nrows(); j ++ )
-    {
-      printf("%.3f ", sv.qt[i][j]);
+      printf("%.3f ", sv.QT.p[i][j]);
     }
     printf("\n");
   }
 
   printf("R: \n");
-  for (int i = 0; i < sv.r.nrows(); i ++ )
+  for (int i = 0; i < sv.R.rows; i ++ )
   {
-    for (int j = 0; j < sv.r.nrows(); j ++ )
+    for (int j = 0; j < sv.R.cols; j ++ )
     {
-      printf("%.3f ", sv.r[i][j]);
+      printf("%.3f ", sv.R.p[i][j]);
     }
     printf("\n");
-  }
-
-  for (uint32_t i = 0; i < x->rows; i ++ )
-  {
-    x->p[i][0] = x_[i];
   }
 }
 
@@ -1078,3 +1117,31 @@ void EQU_MAT_D_3_3(MAT_D_3_3 m_in, MAT_D_3_3 m_out)
 
     return 0;
   }
+
+  // result will store into rmat
+  uint32_t MultipyMatrix(const MAT_DYNAMIC_D* lmat, MAT_DYNAMIC_D* rmat) 
+  {
+    int N = lmat->rows;
+    int M = rmat->cols;
+    int K = lmat->cols;
+
+    assert(K == rmat->rows);
+
+    double tmp[N][M];
+
+    for(uint32_t i = 0; i < N; i++) {             
+      for(uint32_t j = 0; j < M; j++) {	
+        double sum = 0;
+        for(uint32_t k = 0; k < K; k++) {   
+          sum += lmat->p[i][k] * rmat->p[k][j];
+        }
+        tmp[i][j] = sum;
+      }	
+    }
+
+    for(uint32_t i = 0; i < N; i++) {             
+      for(uint32_t j = 0; j < M; j++) {	
+        rmat->p[i][j] = tmp[i][j];
+      }	
+    }
+  } 

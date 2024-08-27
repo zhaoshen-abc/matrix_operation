@@ -1,146 +1,136 @@
 #pragma once
 #include <nr3.h>
 
+#include <cmath>
+#include <stdlib.h>
+#include <stdio.h>
+#include "linearalgebra.h"
+#include "geometry.h"
+
 struct QRdcmp {
-    Int n;
-    MatDoub qt, r;
-    Bool sing;
+    int n, m;
+    MAT_DYNAMIC_D QT, R;
 
-    QRdcmp(MatDoub_I &a);
+    QRdcmp(MAT_DYNAMIC_D* A);
 
-    void solve(VecDoub_I &b, VecDoub_O &x);
+    ~QRdcmp();
 
-    void qtmult(VecDoub_I &b, VecDoub_O &x);
+    void solve(const MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x);
 
-    void rsolve(VecDoub_I &b, VecDoub_O &x);
+    void qtmult(const MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x);
 
-    void update(VecDoub_I &u, VecDoub_I &v);
+    void rsolve(const MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x);
 
-    void rotate(const Int i, const Doub a, const Doub b);
+    double norm(double v[], int length);
 };
 
-QRdcmp::QRdcmp(MatDoub_I &a)
-        : n(a.nrows()), qt(n, n), r(a), sing(false) {
-    Int i, j, k;
-    VecDoub c(n), d(n);
-    Doub scale, sigma, sum, tau;
-    for (k = 0; k < n - 1; k++) {
-        scale = 0.0;
-        for (i = k; i < n; i++) scale = MAX_(scale, fabs(r[i][k]));
-        if (scale == 0.0) {
-            sing = true;
-            c[k] = d[k] = 0.0;
-        } else {
-            for (i = k; i < n; i++) r[i][k] /= scale;
-            for (sum = 0.0, i = k; i < n; i++) sum += SQR(r[i][k]);
-            sigma = SIGN(sqrt(sum), r[k][k]);
-            r[k][k] += sigma;
-            c[k] = sigma * r[k][k];
-            d[k] = -scale * sigma;
-            for (j = k + 1; j < n; j++) {
-                for (sum = 0.0, i = k; i < n; i++) sum += r[i][k] * r[i][j];
-                tau = sum / c[k];
-                for (i = k; i < n; i++) r[i][j] -= tau * r[i][k];
-            }
+QRdcmp::QRdcmp(MAT_DYNAMIC_D* A) {
+	m = A->rows;
+	n = A->cols;
+
+    NEW_MAT_DYNAMIC_D(&QT, m, m);
+    NEW_MAT_DYNAMIC_D(&R, m, n);
+
+    for (int i = 0; i < m; i ++ )
+    {
+        for (int j = 0; j < m; j ++ )
+        {
+            QT.p[i][j] = i == j ? 1.0 : 0.0;
         }
     }
-    d[n - 1] = r[n - 1][n - 1];
-    if (d[n - 1] == 0.0) sing = true;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) qt[i][j] = 0.0;
-        qt[i][i] = 1.0;
-    }
-    for (k = 0; k < n - 1; k++) {
-        if (c[k] != 0.0) {
-            for (j = 0; j < n; j++) {
-                sum = 0.0;
-                for (i = k; i < n; i++)
-                    sum += r[i][k] * qt[i][j];
-                sum /= c[k];
-                for (i = k; i < n; i++)
-                    qt[i][j] -= sum * r[i][k];
-            }
+
+    for (int i = 0; i < m; i ++ )
+    {
+        for (int j = 0; j < n; j ++ )
+        {
+            R.p[i][j] = A->p[i][j];
         }
     }
-    for (i = 0; i < n; i++) {
-        r[i][i] = d[i];
-        for (j = 0; j < i; j++) r[i][j] = 0.0;
-    }
+
+    MAT_DYNAMIC_D H_mat;
+    MAT_DYNAMIC_D* H = &H_mat;
+    NEW_MAT_DYNAMIC_D(H, m, m);
+
+    for (int k = 0; k < n; ++k) {
+        double x[m - k];
+        for (int i = 0; i < m-k; i ++ )
+        {
+            x[i] = R.p[k+i][k];
+        }
+
+        x[0] -= norm(x, m-k);
+
+        double x_norm = norm(x, m-k);
+        for (int i = 0; i < m-k; i ++ )
+        {
+            x[i] = x[i]/x_norm;
+        }
+
+        for (int i = 0; i < m; i ++ )
+        {
+            for (int j = 0; j < m; j ++ )
+            {
+                H->p[i][j] = i == j ? 1.0 : 0.0;
+            }
+        }
+
+        for (int i = 0; i < m-k; i ++ )
+        {
+            for (int j = 0; j < m-k; j ++ )
+            {
+                H->p[i+k][j+k] -= 2.0 * x[i] * x[j];
+            }
+        }
+
+        MultipyMatrix(H, &R);
+        MultipyMatrix(H, &QT);
+	}
+
+    FREE_MAT_DYNAMIC_D(H);
 }
 
-void QRdcmp::solve(VecDoub_I &b, VecDoub_O &x) {
-    VecDoub Qtb(n);
-    qtmult(b, Qtb);
-    rsolve(Qtb, x);
+QRdcmp::~QRdcmp()
+{
+    FREE_MAT_DYNAMIC_D(&QT);
+    FREE_MAT_DYNAMIC_D(&R);
 }
 
-void QRdcmp::qtmult(VecDoub_I &b, VecDoub_O &x) {
-    Int i, j;
-    Doub sum;
-    for (i = 0; i < n; i++) {
+void QRdcmp::solve(const MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x) {
+    MAT_DYNAMIC_D QTb;
+    NEW_MAT_DYNAMIC_D(&QTb, b->rows,1);
+
+    qtmult(b, &QTb);
+    rsolve(&QTb, x);
+
+    FREE_MAT_DYNAMIC_D(&QTb);
+}
+
+void QRdcmp::qtmult(const MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x) {
+    int i, j;
+    double sum;
+    for (i = 0; i < m; i++) {
         sum = 0.;
-        for (j = 0; j < n; j++) sum += qt[i][j] * b[j];
-        x[i] = sum;
+        for (j = 0; j < m; j++) sum += QT.p[i][j] * b->p[j][0];
+        x->p[i][0] = sum;
     }
 }
 
-void QRdcmp::rsolve(VecDoub_I &b, VecDoub_O &x) {
-    Int i, j;
-    Doub sum;
-    if (sing) printf("attempting solve in a singular QR");
+double QRdcmp::norm(double v[], int length)
+{
+    double res = 0.0;
+    for (int i = 0; i < length; i ++ )
+    {
+        res += v[i] * v[i];
+    }
+    return sqrt(res);
+}
+
+void QRdcmp::rsolve(const MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x) {
+    int i, j;
+    double sum;
     for (i = n - 1; i >= 0; i--) {
-        sum = b[i];
-        for (j = i + 1; j < n; j++) sum -= r[i][j] * x[j];
-        x[i] = sum / r[i][i];
-    }
-}
-
-void QRdcmp::update(VecDoub_I &u, VecDoub_I &v) {
-    Int i, k;
-    VecDoub w(u);
-    for (k = n - 1; k >= 0; k--)
-        if (w[k] != 0.0) break;
-    if (k < 0) k = 0;
-    for (i = k - 1; i >= 0; i--) {
-        rotate(i, w[i], -w[i + 1]);
-        if (w[i] == 0.0)
-            w[i] = fabs(w[i + 1]);
-        else if (fabs(w[i]) > fabs(w[i + 1]))
-            w[i] = fabs(w[i]) * sqrt(1.0 + SQR(w[i + 1] / w[i]));
-        else w[i] = fabs(w[i + 1]) * sqrt(1.0 + SQR(w[i] / w[i + 1]));
-    }
-    for (i = 0; i < n; i++) r[0][i] += w[0] * v[i];
-    for (i = 0; i < k; i++)
-        rotate(i, r[i][i], -r[i + 1][i]);
-    for (i = 0; i < n; i++)
-        if (r[i][i] == 0.0) sing = true;
-}
-
-void QRdcmp::rotate(const Int i, const Doub a, const Doub b) {
-    Int j;
-    Doub c, fact, s, w, y;
-    if (a == 0.0) {
-        c = 0.0;
-        s = (b >= 0.0 ? 1.0 : -1.0);
-    } else if (fabs(a) > fabs(b)) {
-        fact = b / a;
-        c = SIGN(1.0 / sqrt(1.0 + (fact * fact)), a);
-        s = fact * c;
-    } else {
-        fact = a / b;
-        s = SIGN(1.0 / sqrt(1.0 + (fact * fact)), b);
-        c = fact * s;
-    }
-    for (j = i; j < n; j++) {
-        y = r[i][j];
-        w = r[i + 1][j];
-        r[i][j] = c * y - s * w;
-        r[i + 1][j] = s * y + c * w;
-    }
-    for (j = 0; j < n; j++) {
-        y = qt[i][j];
-        w = qt[i + 1][j];
-        qt[i][j] = c * y - s * w;
-        qt[i + 1][j] = s * y + c * w;
+        sum = b->p[i][0];
+        for (j = i + 1; j < n; j++) sum -= R.p[i][j] * x->p[j][0];
+        x->p[i][0] = sum / R.p[i][i];
     }
 }

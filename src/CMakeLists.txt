@@ -3,7 +3,6 @@ project(orb3_c)
 
 find_package(Eigen3 3.4.0 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
-        # /home/zhaoshen/Mycode/utils/parse_dump/)
 
 include_directories(../include/matrix_operation)
 add_library(matrix_operation SHARED
@@ -21,7 +20,3 @@ target_link_libraries(SVD_test matrix_operation m)
 
 add_executable(SVD_QR_test test/SVD_QR_test.cpp)
 target_link_libraries(SVD_QR_test matrix_operation m)
-
-
-
-

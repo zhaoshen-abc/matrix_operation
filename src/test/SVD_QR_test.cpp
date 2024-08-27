@@ -274,8 +274,8 @@ int main()
     {
         printf("HouseholderQr ref: \n");
         MAT_DYNAMIC_D A, b, x;
-        NEW_MAT_DYNAMIC_D(&A, 5, 4);
-        NEW_MAT_DYNAMIC_D(&b, 5, 1);
+        NEW_MAT_DYNAMIC_D(&A, 6, 4);
+        NEW_MAT_DYNAMIC_D(&b, 6, 1);
         NEW_MAT_DYNAMIC_D(&x, 4, 1);
 
         // Fill A and b with your data
@@ -309,11 +309,17 @@ int main()
         A.p[4][3] = 2;
         // A.p[4][4] = 9;
 
+        A.p[5][0] = 53;
+        A.p[5][1] = 76;
+        A.p[5][2] = 95;
+        A.p[5][3] = 32;
+
         b.p[0][0] = 1;
-        b.p[1][0] = 1;
+        b.p[1][0] = 14;
         b.p[2][0] = 0;
-        b.p[3][0] = 1;
+        b.p[3][0] = 3;
         b.p[4][0] = 1;
+        b.p[4][0] = 5;
 
         printf("A : \n");
         print_mat(&A);
@@ -334,8 +340,8 @@ int main()
     {
         printf("HouseholderQr: \n");
         MAT_DYNAMIC_D A, b, x;
-        NEW_MAT_DYNAMIC_D(&A, 5, 4);
-        NEW_MAT_DYNAMIC_D(&b, 5, 1);
+        NEW_MAT_DYNAMIC_D(&A, 6, 4);
+        NEW_MAT_DYNAMIC_D(&b, 6, 1);
         NEW_MAT_DYNAMIC_D(&x, 4, 1);
 
         // Fill A and b with your data
@@ -369,11 +375,17 @@ int main()
         A.p[4][3] = 2;
         // A.p[4][4] = 9;
 
+        A.p[5][0] = 53;
+        A.p[5][1] = 76;
+        A.p[5][2] = 95;
+        A.p[5][3] = 32;
+
         b.p[0][0] = 1;
-        b.p[1][0] = 1;
+        b.p[1][0] = 14;
         b.p[2][0] = 0;
-        b.p[3][0] = 1;
+        b.p[3][0] = 3;
         b.p[4][0] = 1;
+        b.p[4][0] = 5;
 
         printf("A : \n");
         print_mat(&A);

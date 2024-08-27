@@ -169,6 +169,8 @@ extern "C" {
 
   uint32_t multipyPose_inplace(const POSE_D lpose, POSE_D rpose);
 
+  uint32_t MultipyMatrix(const MAT_DYNAMIC_D* lmat, MAT_DYNAMIC_D* rmat);
+
   // inline Vec2d world2cam(const VEC_D_3 &xyz_c, const Mat3d &K) {
   //   Vec2d p = xyz_c.head<2>() / xyz_c(2);
   //   p(0) = K(0, 0) * p(0) + K(0, 2);
