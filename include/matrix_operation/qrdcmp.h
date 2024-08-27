@@ -4,7 +4,6 @@
 #include <cmath>
 #include <stdlib.h>
 #include <stdio.h>
-#include "linearalgebra.h"
 #include "geometry.h"
 
 struct QRdcmp {
