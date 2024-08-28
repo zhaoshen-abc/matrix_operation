@@ -29,12 +29,8 @@ extern "C" {
 
   void NEW_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, const uint32_t rows, const uint32_t cols);
   void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
-  void NEW_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd, const uint32_t mat_rows, const uint32_t mat_cols);
-  void FREE_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd);
   void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
   void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest);
-  void ATA_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* ATA);
-  void TRANSPOSE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* AT);
 
   // compute SVD decomposition for mat, saved in svd
   // mat = U*D*V^T
@@ -72,9 +68,9 @@ extern "C" {
 
   // return v1^T * v2
   double DOT_PRODUCT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2);
-  
-  // return || v1 - v2 ||^2
-  double SQUARED_L2_DIST_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2);
+
+  // return v1 - v2
+  double* SUBTRACT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2);
 
   // return || p ||^2
   double squaredNorm_VEC_D_3(VEC_D_3 p);
@@ -111,65 +107,59 @@ extern "C" {
 
   void ac_POSE_D_print(const POSE_D mat);
 
-  uint32_t copy_VEC_D_3(const VEC_D_3 v_in, VEC_D_3 v_out);
+  void copy_VEC_D_3(const VEC_D_3 v_in, VEC_D_3 v_out);
 
-  uint32_t copy_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
+  void copy_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
 
-  uint32_t transpose_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
+  void transpose_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out);
 
-  uint32_t transpose_Mat33d_inplace(MAT_D_3_3 mat);
+  void transpose_Mat33d_inplace(MAT_D_3_3 mat);
 
-  uint32_t set_Identity_POSE_D(POSE_D pose);
+  void set_Identity_POSE_D(POSE_D pose);
 
-  uint32_t set_Translate_POSE_D(POSE_D pose, const VEC_D_3 trans);
+  void set_Translate_POSE_D(POSE_D pose, const VEC_D_3 trans);
 
-  uint32_t set_Rotation_POSE_D(POSE_D pose, const MAT_D_3_3 rotation);
+  void set_Rotation_POSE_D(POSE_D pose, const MAT_D_3_3 rotation);
 
-  uint32_t Pose_Translate_part(const POSE_D pose, VEC_D_3 trans);
+  void Pose_Translate_part(const POSE_D pose, VEC_D_3 trans);
 
-  uint32_t Pose_Rotation_part(const POSE_D pose, MAT_D_3_3 rotation);
+  void Pose_Rotation_part(const POSE_D pose, MAT_D_3_3 rotation);
 
-  uint32_t set_Identity_Mat33d(MAT_D_3_3 mat);
+  void set_Identity_Mat33d(MAT_D_3_3 mat);
 
-  uint32_t Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const VEC_D_3 v, VEC_D_3 res);
+  void Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const VEC_D_3 v, VEC_D_3 res);
 
-  uint32_t Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, VEC_D_3 v);
+  void Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, VEC_D_3 v);
 
-  uint32_t MAT33D_times(const MAT_D_3_3 mat, double num, MAT_D_3_3 res);
+  void MAT33D_times(const MAT_D_3_3 mat, double num, MAT_D_3_3 res);
 
-  uint32_t MAT33D_times_inplace(MAT_D_3_3 mat, double num);
+  void MAT33D_times_inplace(MAT_D_3_3 mat, double num);
 
   uint32_t MAT33D_matrix_operation(const MAT_D_3_3 factor1, const MAT_D_3_3 factor2, char oper, MAT_D_3_3 res);
 
   uint32_t MAT33D_matrix_operation_inplace(const MAT_D_3_3 factor1, MAT_D_3_3 factor2, char oper);
 
-  uint32_t skewd(const VEC_D_3 v, MAT_D_3_3 mat);
+  void skewd(const VEC_D_3 v, MAT_D_3_3 mat);
 
   double norm_V3d(const VEC_D_3 v);
 
-  uint32_t Log_SO3d(const MAT_D_3_3 R, VEC_D_3 v);
+  void Log_SO3d(const MAT_D_3_3 R, VEC_D_3 v);
 
-  uint32_t Exp3d(const VEC_D_3 _dx, MAT_D_3_3 R);
+  void Exp3d(const VEC_D_3 _dx, MAT_D_3_3 R);
 
-  uint32_t Exp6d(const VEC_D_6 _dx, POSE_D T);
+  void Exp6d(const VEC_D_6 _dx, POSE_D T);
   
-  // wxyz
-  uint32_t mat2qua(const MAT_D_3_3 m, Quaternion_D qua);
+  void mat2qua(const MAT_D_3_3 m, Quaternion_D qua);
+
+  void inversePose(const POSE_D pose_in, POSE_D pose_out);
   
-  // wxyz
-  uint32_t qua2mat(const Quaternion_D q, MAT_D_3_3 M);
+  void inversePose_inplace(POSE_D pose);
 
-  uint32_t normalize_q(Quaternion_D q);
+  void multipyPose(const POSE_D lpose, const POSE_D rpose, POSE_D res);
 
-  uint32_t inversePose(const POSE_D pose_in, POSE_D pose_out);
-  
-  uint32_t inversePose_inplace(POSE_D pose);
+  void multipyPose_inplace(const POSE_D lpose, POSE_D rpose);
 
-  uint32_t multipyPose(const POSE_D lpose, const POSE_D rpose, POSE_D res);
-
-  uint32_t multipyPose_inplace(const POSE_D lpose, POSE_D rpose);
-
-  uint32_t MultipyMatrix(const MAT_DYNAMIC_D* lmat, MAT_DYNAMIC_D* rmat);
+  void MultipyMatrix(const MAT_DYNAMIC_D* lmat, MAT_DYNAMIC_D* rmat);
 
   // inline Vec2d world2cam(const VEC_D_3 &xyz_c, const Mat3d &K) {
   //   Vec2d p = xyz_c.head<2>() / xyz_c(2);

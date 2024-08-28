@@ -15,8 +15,8 @@ add_library(matrix SHARED
 add_executable(SE3_test test/SE3_test.c)
 target_link_libraries(SE3_test matrix_operation m)
 
-add_executable(SVD_test test/SVD_test.cpp)
-target_link_libraries(SVD_test matrix_operation m)
+# add_executable(SVD_test test/SVD_test.cpp)
+# target_link_libraries(SVD_test matrix_operation m)
 
 add_executable(SVD_QR_test test/SVD_QR_test.cpp)
 target_link_libraries(SVD_QR_test matrix_operation m)

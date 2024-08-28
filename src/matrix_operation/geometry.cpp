@@ -29,32 +29,29 @@
   // }
 
 
-  uint32_t copy_VEC_D_3(const VEC_D_3 v_in, VEC_D_3 v_out) {
+  void copy_VEC_D_3(const VEC_D_3 v_in, VEC_D_3 v_out) {
     v_out[0] = v_in[0];
     v_out[1] = v_in[1];
     v_out[2] = v_in[2];
-    return 0;
   }
 
-  uint32_t copy_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out) {
+  void copy_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out) {
     for (uint32_t i = 0; i < 3; i ++ ) {
       for (uint32_t j = 0; j < 3; j ++ ) {
         mat_out[i][j] = mat_in[i][j];
       }
     }
-    return 0;
   }
 
-  uint32_t copy_POSE_D(const POSE_D pose_in, POSE_D pose_out) {
+  void copy_POSE_D(const POSE_D pose_in, POSE_D pose_out) {
     for (uint32_t i = 0; i < 3; i ++ ) {
       for (uint32_t j = 0; j < 4; j ++ ) {
         pose_out[i][j] = pose_in[i][j];
       }
     }
-    return 0;
   }
 
-  uint32_t transpose_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out) {
+  void transpose_Mat33d(const MAT_D_3_3 mat_in, MAT_D_3_3 mat_out) {
     for (uint32_t i = 0; i < 3; i ++ ) {
       for (uint32_t j = 0; j < 3; j ++ ) {
         mat_out[i][j] = mat_in[j][i];
@@ -62,7 +59,7 @@
     }
   }
 
-  uint32_t transpose_Mat33d_inplace(MAT_D_3_3 mat) {
+  void transpose_Mat33d_inplace(MAT_D_3_3 mat) {
     for (uint32_t i = 0; i < 3; i ++ ) {
       for (uint32_t j = i+1; j < 3; j ++ ) {
         double tmp = mat[i][j];
@@ -72,37 +69,34 @@
     }
   }
 
-  uint32_t set_Identity_POSE_D(POSE_D pose) {
+  void set_Identity_POSE_D(POSE_D pose) {
     memset(pose, 0, 12*sizeof(double));
     pose[0][0] = 1.0;
     pose[1][1] = 1.0;
     pose[2][2] = 1.0;
-    return 0;
   }
 
-  uint32_t set_Translate_POSE_D(POSE_D pose, const VEC_D_3 trans) {
+  void set_Translate_POSE_D(POSE_D pose, const VEC_D_3 trans) {
     for (uint32_t i = 0; i < 3; i ++ ) {
         pose[i][3] = trans[i];
     }
-    return 0;
   }
 
-  uint32_t set_Rotation_POSE_D(POSE_D pose, const MAT_D_3_3 rotation) {
+  void set_Rotation_POSE_D(POSE_D pose, const MAT_D_3_3 rotation) {
     for (uint32_t i = 0; i < 3; i ++ ) {
       for (uint32_t j = 0; j < 3; j ++ ) {
         pose[i][j] = rotation[i][j];
       }
     }
-    return 0;
   }
 
-  uint32_t Pose_Translate_part(const POSE_D pose, VEC_D_3 trans) {
+  void Pose_Translate_part(const POSE_D pose, VEC_D_3 trans) {
     trans[0] = pose[0][3];
     trans[1] = pose[1][3];
     trans[2] = pose[2][3];
   }
 
-  uint32_t Pose_Rotation_part(const POSE_D pose, MAT_D_3_3 rotation) {
+  void Pose_Rotation_part(const POSE_D pose, MAT_D_3_3 rotation) {
     for (uint32_t i = 0U; i < 3; i++) {
       for (uint32_t j = 0U; j < 3; j++) {
         rotation[i][j] = pose[i][j];
@@ -110,24 +104,23 @@
     }
   }
 
-  uint32_t set_Identity_Mat33d(MAT_D_3_3 mat) {
+  void set_Identity_Mat33d(MAT_D_3_3 mat) {
     memset(mat, 0, 9*sizeof(double));
     mat[0][0] = 1;
     mat[1][1] = 1;
     mat[2][2] = 1;
   }
 
-  uint32_t Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const VEC_D_3 v, VEC_D_3 res) {
+  void Mat33D_Vec3D_multiply(const MAT_D_3_3 mat, const VEC_D_3 v, VEC_D_3 res) {
     memset(res, 0, sizeof(double) * 3);
     for (uint32_t i = 0U; i < 3; i++) {
       for (uint32_t j = 0U; j < 3; j++) {
         res[i] += mat[i][j] * v[j];
       }
     }
-    return 0;
   }
 
-  uint32_t Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, VEC_D_3 v) {
+  void Mat33D_Vec3D_multiply_inplace(const MAT_D_3_3 mat, VEC_D_3 v) {
     VEC_D_3 tmp = {0.0, 0.0, 0.0};
     for (uint32_t i = 0U; i < 3; i++) {
       for (uint32_t j = 0U; j < 3; j++) {
@@ -135,27 +128,24 @@
       }
     }
     copy_VEC_D_3(tmp, v);
-    return 0;
   }
 
-  uint32_t MAT33D_times(const MAT_D_3_3 mat, double num, MAT_D_3_3 res) {
+  void MAT33D_times(const MAT_D_3_3 mat, double num, MAT_D_3_3 res) {
     uint32_t N = 3, M = 3;
     for (uint32_t i = 0U; i < N; i++) {
       for (uint32_t j = 0U; j < M; j++) {
           res[i][j] = mat[i][j] * num;
         }
       }
-    return 0;
   }
 
-  uint32_t MAT33D_times_inplace(MAT_D_3_3 mat, double num) {
+  void MAT33D_times_inplace(MAT_D_3_3 mat, double num) {
     uint32_t N = 3, M = 3;
     for (uint32_t i = 0U; i < N; i++) {
       for (uint32_t j = 0U; j < M; j++) {
           mat[i][j] = mat[i][j] * num;
         }
       }
-    return 0;
   }
 
   uint32_t MAT33D_matrix_operation(const MAT_D_3_3 factor1, const MAT_D_3_3 factor2, char oper, MAT_D_3_3 res) {
@@ -277,7 +267,7 @@
     }
   }
 
-  uint32_t skewd(const VEC_D_3 v, MAT_D_3_3 mat) {
+  void skewd(const VEC_D_3 v, MAT_D_3_3 mat) {
     memset(mat, 0, 9*sizeof(double));
     mat[0][1] = -v[2];
     mat[0][2] = v[1];
@@ -285,7 +275,6 @@
     mat[1][2] = -v[0];
     mat[2][0] = -v[1];
     mat[2][1] = v[0];
-    return 0;
   }
 
   double norm_V3d(const VEC_D_3 v) {
@@ -293,7 +282,7 @@
     return sqrt(res);
   }
 
-  uint32_t Log_SO3d(const MAT_D_3_3 R, VEC_D_3 v) {
+  void Log_SO3d(const MAT_D_3_3 R, VEC_D_3 v) {
     Quaternion_D q;
     mat2qua(R, q);
     //normlize
@@ -331,10 +320,9 @@
     v[1] = two_atan_nbyw_by_n * q[1];
     v[2] = two_atan_nbyw_by_n * q[2];
 
-    return 0;
   }
 
-  uint32_t Exp3d(const VEC_D_3 _dx, MAT_D_3_3 R) {
+  void Exp3d(const VEC_D_3 _dx, MAT_D_3_3 R) {
 
   }
 
@@ -393,7 +381,7 @@
 
 
   // copy from https://blog.csdn.net/w_weixiaotao/article/details/109496434
-  uint32_t mat2qua(const MAT_D_3_3 m, Quaternion_D qua)
+  void mat2qua(const MAT_D_3_3 m, Quaternion_D qua)
   {
     double q1 = sqrt(m[0][0] + m[1][1] + m[2][2] + 1) / 2;
     double q2, q3, q4, tr, s;
@@ -438,10 +426,9 @@
     qua[1] = q2;
     qua[2] = q3;
     qua[3] = q4;
-    return 0;
   }
 
-  uint32_t Exp6d(const VEC_D_6 _dx, POSE_D pose) {
+  void Exp6d(const VEC_D_6 _dx, POSE_D pose) {
     VEC_D_3 p, r;
     copy_VEC_D_3(_dx, p);
     copy_VEC_D_3(_dx + 3, p);
@@ -487,10 +474,9 @@
     Mat33D_Vec3D_multiply_inplace(j, p);
     set_Rotation_POSE_D(pose, R);
     set_Translate_POSE_D(pose, p);
-    return 0;
   }
 
-  uint32_t inversePose(const POSE_D pose_in, POSE_D pose_out) { 
+  void inversePose(const POSE_D pose_in, POSE_D pose_out) { 
       MAT_D_3_3 rotation;
       VEC_D_3 trans;
       Pose_Rotation_part(pose_in, rotation);
@@ -502,11 +488,10 @@
       Mat33D_Vec3D_multiply_inplace(rotation, trans);
       set_Translate_POSE_D(pose_out, trans);
 
-      return 0; 
   }
 
 
-  uint32_t inversePose_inplace(POSE_D pose) { 
+  void inversePose_inplace(POSE_D pose) { 
       MAT_D_3_3 rotation;
       VEC_D_3 trans;
       Pose_Rotation_part(pose, rotation);
@@ -518,10 +503,9 @@
       Mat33D_Vec3D_multiply_inplace(rotation, trans);
       set_Translate_POSE_D(pose, trans);
 
-      return 0; 
   }
 
-  uint32_t multipyPose(const POSE_D lpose, const POSE_D rpose, POSE_D res) { \
+  void multipyPose(const POSE_D lpose, const POSE_D rpose, POSE_D res) { \
     MAT_D_3_3 lrot, rrot, rot;
     Pose_Rotation_part(lpose, lrot);
     Pose_Rotation_part(rpose, rrot);
@@ -536,15 +520,13 @@
     for (uint32_t i = 0; i < 3; i ++ ) 
       trans[i] = rtrans[i] + ltrans[i];
     set_Translate_POSE_D(res, trans);
-    return 0;
   }
 
   // operation in place, save result in rpose
-  uint32_t multipyPose_inplace(const POSE_D lpose, POSE_D rpose) { 
+  void multipyPose_inplace(const POSE_D lpose, POSE_D rpose) { 
     POSE_D tmp;
     multipyPose(lpose, rpose, tmp);
     copy_POSE_D(tmp, rpose);
-    return 0;
   }
 
 void NEW_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, const uint32_t rows, const uint32_t cols) {
@@ -561,25 +543,9 @@ void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat) {
     free(mat->p[i]);
   }
   free(mat->p);
+  mat->p = NULL;
   mat->rows = 0;
   mat->cols = 0;
-}
-
-// svd = U * D * V^T
-void NEW_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd, const uint32_t mat_rows, const uint32_t mat_cols) {
-  NEW_MAT_DYNAMIC_D(&svd->U, mat_rows, mat_rows);
-  NEW_MAT_DYNAMIC_D(&svd->D, mat_rows, mat_cols);
-  NEW_MAT_DYNAMIC_D(&svd->V, mat_cols, mat_cols);
-
-  return;
-}
-
-void FREE_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd) {
-  FREE_MAT_DYNAMIC_D(&svd->U);
-  FREE_MAT_DYNAMIC_D(&svd->D);
-  FREE_MAT_DYNAMIC_D(&svd->V);
-
-  return;
 }
 
 void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat) {
@@ -659,40 +625,6 @@ void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest) {
   }
 }
 
-
-// ATA = A^T * A
-void ATA_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* ATA) {
-  assert(A->cols == ATA->rows);
-  assert(ATA->cols == ATA->rows);
-
-  int m = A->rows;
-  int n = A->cols;
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < n; ++j) {
-      double val = 0.0;
-      for (int k = 0; k < m; ++k) {
-        val += A->p[k][i] * A->p[k][j];
-      }
-      ATA->p[i][j] = val;
-    }
-  }
-
-  return;
-}
-
- void TRANSPOSE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* AT) {
-  assert(A->rows == AT->cols);
-  assert(A->cols == AT->rows);
-
-  for (int i = 0; i < AT->rows; ++i) {
-    for (int j = 0; j < AT->cols; ++j) {
-      AT->p[i][j] = A->p[j][i];
-    }
-  }
-
-  return;
- }
-
 // Solve a system of linear equations Ax = b using Gaussian elimination with partial pivoting.
 // A is an n-by-n matrix, b is an n-by-1 matrix (column vector), and x is the solution vector.
 // This function modifies the input matrices A and b.
@@ -744,7 +676,7 @@ void SOLVE_A_x_b_GaussianElimination(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYN
 
 void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x)
 {
-  assert(A->cols == x->rows && A->rows == b->rows);
+  assert(A->cols == x->rows && x->rows == b->rows);
   assert(b->cols == 1 && x->cols == 1);
 
   MatDoub A_(A->rows, A->cols);
@@ -936,12 +868,12 @@ double DOT_PRODUCT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2)
   return sum;
 }
 
-// return || v1 - v2 ||^2
-double SQUARED_L2_DIST_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2)
+// return v1 - v2
+double* SUBTRACT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2)
 {
-  double sum = 0.0;
-  for (int i = 0; i < 3; ++i) sum += (v1[i] - v2[i])*(v1[i] - v2[i]);
-  return sum;
+  double* ret = new VEC_D_3;
+  for (int i = 0; i < 3; i ++ ) ret[i] = v1[i] - v2[i];
+  return ret;
 }
 
 // return || p ||^2
@@ -1019,70 +951,30 @@ void EQU_MAT_D_3_3(MAT_D_3_3 m_in, MAT_D_3_3 m_out)
   }
 }
 
-// from https://github.com/datenwolf/linmath.h/blob/master/linmath.h
-  uint32_t qua2mat(const Quaternion_D q, MAT_D_3_3 M)
-  {
-    float a = q[0];
-    float b = q[1];
-    float c = q[2];
-    float d = q[3];
-    float a2 = a*a;
-    float b2 = b*b;
-    float c2 = c*c;
-    float d2 = d*d;
-    
-    M[0][0] = a2 + b2 - c2 - d2;
-    M[0][1] = 2.f*(b*c + a*d);
-    M[0][2] = 2.f*(b*d - a*c);
+// result will store into rmat
+void MultipyMatrix(const MAT_DYNAMIC_D* lmat, MAT_DYNAMIC_D* rmat) 
+{
+  int N = lmat->rows;
+  int M = rmat->cols;
+  int K = lmat->cols;
 
-    M[1][0] = 2*(b*c - a*d);
-    M[1][1] = a2 - b2 + c2 - d2;
-    M[1][2] = 2.f*(c*d + a*b);
+  assert(K == rmat->rows);
 
-    M[2][0] = 2.f*(b*d + a*c);
-    M[2][1] = 2.f*(c*d - a*b);
-    M[2][2] = a2 - b2 - c2 + d2;
+  double tmp[N][M];
 
-    return 0;
+  for(uint32_t i = 0; i < N; i++) {             
+    for(uint32_t j = 0; j < M; j++) {	
+      double sum = 0;
+      for(uint32_t k = 0; k < K; k++) {   
+        sum += lmat->p[i][k] * rmat->p[k][j];
+      }
+      tmp[i][j] = sum;
+    }	
   }
 
-  uint32_t normalize_q(Quaternion_D q)
-  {
-    double norm = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
-    norm = 1.0 / norm;
-
-    q[0] *= norm;
-    q[1] *= norm;
-    q[2] *= norm;
-    q[3] *= norm;
-
-    return 0;
+  for(uint32_t i = 0; i < N; i++) {             
+    for(uint32_t j = 0; j < M; j++) {	
+      rmat->p[i][j] = tmp[i][j];
+    }	
   }
-
-  // result will store into rmat
-  uint32_t MultipyMatrix(const MAT_DYNAMIC_D* lmat, MAT_DYNAMIC_D* rmat) 
-  {
-    int N = lmat->rows;
-    int M = rmat->cols;
-    int K = lmat->cols;
-
-    assert(K == rmat->rows);
-
-    double tmp[N][M];
-
-    for(uint32_t i = 0; i < N; i++) {             
-      for(uint32_t j = 0; j < M; j++) {	
-        double sum = 0;
-        for(uint32_t k = 0; k < K; k++) {   
-          sum += lmat->p[i][k] * rmat->p[k][j];
-        }
-        tmp[i][j] = sum;
-      }	
-    }
-
-    for(uint32_t i = 0; i < N; i++) {             
-      for(uint32_t j = 0; j < M; j++) {	
-        rmat->p[i][j] = tmp[i][j];
-      }	
-    }
-  } 
+} 
