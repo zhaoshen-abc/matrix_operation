@@ -134,6 +134,17 @@ void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D_ref(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b
   }
 }
 
+double determinant_MAT_D_3_3_ref(MAT_D_3_3 m)
+{
+  Eigen::MatrixXd mat(3, 3);
+  for (uint32_t i = 0; i < 3; ++i) {
+    for (uint32_t j = 0; j < 3; ++j) {
+      mat(i, j) = m[i][j];
+    }
+  }
+  return mat.determinant();
+}
+
 int main()
 {
     {
@@ -195,6 +206,46 @@ int main()
         print_mat(D);
         printf("V : \n");
         print_mat(V);
+    }
+
+    {
+        printf("det: \n");
+        MAT_D_3_3 mat;
+        // Fill A and b with your data
+        mat[0][0] = 2.4;
+        mat[0][1] = 1.1;
+        mat[0][2] = 12;
+        mat[1][0] = 2;
+        mat[1][1] = 1.3;
+        mat[1][2] = 7;
+        mat[2][0] = 3;
+        mat[2][1] = 1;
+        mat[2][2] = 0.5;
+
+        double det = determinant_MAT_D_3_3(mat);
+        printf("A : \n");
+        print_mat(mat);
+        printf("det: %f\n", det);
+    }
+
+    {
+        printf("det ref: \n");
+        MAT_D_3_3 mat;
+        // Fill A and b with your data
+        mat[0][0] = 2.4;
+        mat[0][1] = 1.1;
+        mat[0][2] = 12;
+        mat[1][0] = 2;
+        mat[1][1] = 1.3;
+        mat[1][2] = 7;
+        mat[2][0] = 3;
+        mat[2][1] = 1;
+        mat[2][2] = 0.5;
+
+        double det = determinant_MAT_D_3_3_ref(mat);
+        printf("A : \n");
+        print_mat(mat);
+        printf("det ref: %f\n", det);
     }
 
     {
