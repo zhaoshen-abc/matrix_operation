@@ -29,8 +29,12 @@ extern "C" {
 
   void NEW_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat, const uint32_t rows, const uint32_t cols);
   void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
+  void NEW_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd, const uint32_t mat_rows, const uint32_t mat_cols);
+  void FREE_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd);
   void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat);
   void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest);
+  void ATA_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* ATA);
+  void TRANSPOSE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* AT);
 
   // compute SVD decomposition for mat, saved in svd
   // mat = U*D*V^T
@@ -68,9 +72,9 @@ extern "C" {
 
   // return v1^T * v2
   double DOT_PRODUCT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2);
-
-  // return v1 - v2
-  double* SUBTRACT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2);
+  
+  // return || v1 - v2 ||^2
+  double SQUARED_L2_DIST_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2);
 
   // return || p ||^2
   double squaredNorm_VEC_D_3(VEC_D_3 p);
@@ -149,7 +153,13 @@ extern "C" {
 
   void Exp6d(const VEC_D_6 _dx, POSE_D T);
   
+  // wxyz
   void mat2qua(const MAT_D_3_3 m, Quaternion_D qua);
+  
+  // wxyz
+  uint32_t qua2mat(const Quaternion_D q, MAT_D_3_3 M);
+
+  uint32_t normalize_q(Quaternion_D q);
 
   void inversePose(const POSE_D pose_in, POSE_D pose_out);
   

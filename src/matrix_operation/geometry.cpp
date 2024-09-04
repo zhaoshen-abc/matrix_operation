@@ -543,9 +543,25 @@ void FREE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat) {
     free(mat->p[i]);
   }
   free(mat->p);
-  mat->p = NULL;
   mat->rows = 0;
   mat->cols = 0;
+}
+
+// svd = U * D * V^T
+void NEW_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd, const uint32_t mat_rows, const uint32_t mat_cols) {
+  NEW_MAT_DYNAMIC_D(&svd->U, mat_rows, mat_rows);
+  NEW_MAT_DYNAMIC_D(&svd->D, mat_rows, mat_cols);
+  NEW_MAT_DYNAMIC_D(&svd->V, mat_cols, mat_cols);
+
+  return;
+}
+
+void FREE_SVD_DYNAMIC_D(SVD_DYNAMIC_D* svd) {
+  FREE_MAT_DYNAMIC_D(&svd->U);
+  FREE_MAT_DYNAMIC_D(&svd->D);
+  FREE_MAT_DYNAMIC_D(&svd->V);
+
+  return;
 }
 
 void SET_ZERO_MAT_DYNAMIC_D(MAT_DYNAMIC_D* mat) {
@@ -625,6 +641,40 @@ void COPY_MAT_DYNAMIC_D(MAT_DYNAMIC_D* src, MAT_DYNAMIC_D* dest) {
   }
 }
 
+
+// ATA = A^T * A
+void ATA_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* ATA) {
+  assert(A->cols == ATA->rows);
+  assert(ATA->cols == ATA->rows);
+
+  int m = A->rows;
+  int n = A->cols;
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      double val = 0.0;
+      for (int k = 0; k < m; ++k) {
+        val += A->p[k][i] * A->p[k][j];
+      }
+      ATA->p[i][j] = val;
+    }
+  }
+
+  return;
+}
+
+ void TRANSPOSE_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* AT) {
+  assert(A->rows == AT->cols);
+  assert(A->cols == AT->rows);
+
+  for (int i = 0; i < AT->rows; ++i) {
+    for (int j = 0; j < AT->cols; ++j) {
+      AT->p[i][j] = A->p[j][i];
+    }
+  }
+
+  return;
+ }
+
 // Solve a system of linear equations Ax = b using Gaussian elimination with partial pivoting.
 // A is an n-by-n matrix, b is an n-by-1 matrix (column vector), and x is the solution vector.
 // This function modifies the input matrices A and b.
@@ -676,7 +726,7 @@ void SOLVE_A_x_b_GaussianElimination(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYN
 
 void SOLVE_A_x_b_MAT_by_SVD_MAT_DYNAMIC_D(MAT_DYNAMIC_D* A, MAT_DYNAMIC_D* b, MAT_DYNAMIC_D* x)
 {
-  assert(A->cols == x->rows && x->rows == b->rows);
+  assert(A->cols == x->rows && A->rows == b->rows);
   assert(b->cols == 1 && x->cols == 1);
 
   MatDoub A_(A->rows, A->cols);
@@ -868,12 +918,12 @@ double DOT_PRODUCT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2)
   return sum;
 }
 
-// return v1 - v2
-double* SUBTRACT_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2)
+// return || v1 - v2 ||^2
+double SQUARED_L2_DIST_VEC_D_3(VEC_D_3 v1, VEC_D_3 v2)
 {
-  double* ret = new VEC_D_3;
-  for (int i = 0; i < 3; i ++ ) ret[i] = v1[i] - v2[i];
-  return ret;
+  double sum = 0.0;
+  for (int i = 0; i < 3; ++i) sum += (v1[i] - v2[i])*(v1[i] - v2[i]);
+  return sum;
 }
 
 // return || p ||^2
@@ -982,4 +1032,44 @@ void MultipyMatrix(const MAT_DYNAMIC_D* lmat, MAT_DYNAMIC_D* rmat)
       rmat->p[i][j] = tmp[i][j];
     }	
   }
-} 
+}
+
+// from https://github.com/datenwolf/linmath.h/blob/master/linmath.h
+  uint32_t qua2mat(const Quaternion_D q, MAT_D_3_3 M)
+  {
+    float a = q[0];
+    float b = q[1];
+    float c = q[2];
+    float d = q[3];
+    float a2 = a*a;
+    float b2 = b*b;
+    float c2 = c*c;
+    float d2 = d*d;
+    
+    M[0][0] = a2 + b2 - c2 - d2;
+    M[0][1] = 2.f*(b*c + a*d);
+    M[0][2] = 2.f*(b*d - a*c);
+
+    M[1][0] = 2*(b*c - a*d);
+    M[1][1] = a2 - b2 + c2 - d2;
+    M[1][2] = 2.f*(c*d + a*b);
+
+    M[2][0] = 2.f*(b*d + a*c);
+    M[2][1] = 2.f*(c*d - a*b);
+    M[2][2] = a2 - b2 - c2 + d2;
+
+    return 0;
+  }
+
+  uint32_t normalize_q(Quaternion_D q)
+  {
+    double norm = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+    norm = 1.0 / norm;
+
+    q[0] *= norm;
+    q[1] *= norm;
+    q[2] *= norm;
+    q[3] *= norm;
+
+    return 0;
+  }
